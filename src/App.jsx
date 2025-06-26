@@ -18,6 +18,7 @@ function App() {
     const saved = localStorage.getItem('darkMode');
     return saved ? JSON.parse(saved) : false;
   });
+
   const [showOnboarding, setShowOnboarding] = useState(false);
 
   useEffect(() => {
@@ -48,7 +49,7 @@ function App() {
     }`}>
       <Router>
         <Routes>
-          {/* Embed Routes - No Header */}
+          {/* Embed Routes - No Header, Full Screen */}
           <Route 
             path="/embed/multi-step" 
             element={
@@ -60,7 +61,7 @@ function App() {
           <Route 
             path="/embed/compact" 
             element={
-              <div className="p-4">
+              <div className="w-full h-screen p-4">
                 <CompactEstimator darkMode={darkMode} />
               </div>
             } 
@@ -76,7 +77,7 @@ function App() {
           <Route 
             path="/embed/full" 
             element={
-              <div className="p-4">
+              <div className="w-full min-h-screen p-4">
                 <CostCalculator darkMode={darkMode} />
               </div>
             } 
@@ -84,7 +85,7 @@ function App() {
           <Route 
             path="/embed" 
             element={
-              <div className="p-4">
+              <div className="w-full h-screen p-4">
                 <MultiStepCalculator darkMode={darkMode} embedded={true} />
               </div>
             } 
@@ -103,34 +104,19 @@ function App() {
                   className="container mx-auto px-4 py-6 md:py-8"
                 >
                   <Routes>
-                    <Route 
-                      path="/" 
-                      element={<CostCalculator darkMode={darkMode} />} 
-                    />
-                    <Route 
-                      path="/pricing" 
-                      element={<PricingInfo darkMode={darkMode} />} 
-                    />
-                    <Route 
-                      path="/compare" 
-                      element={<ComparisonTool darkMode={darkMode} />} 
-                    />
-                    <Route 
-                      path="/help" 
-                      element={<HelpPage darkMode={darkMode} />} 
-                    />
-                    <Route 
-                      path="/embed-generator" 
-                      element={<EmbedCodeGenerator darkMode={darkMode} />} 
-                    />
+                    <Route path="/" element={<CostCalculator darkMode={darkMode} />} />
+                    <Route path="/pricing" element={<PricingInfo darkMode={darkMode} />} />
+                    <Route path="/compare" element={<ComparisonTool darkMode={darkMode} />} />
+                    <Route path="/help" element={<HelpPage darkMode={darkMode} />} />
+                    <Route path="/embed-generator" element={<EmbedCodeGenerator darkMode={darkMode} />} />
                   </Routes>
                 </motion.main>
 
                 {/* First-time visitor onboarding */}
-                <OnboardingModal
-                  isOpen={showOnboarding}
-                  onClose={() => setShowOnboarding(false)}
-                  darkMode={darkMode}
+                <OnboardingModal 
+                  isOpen={showOnboarding} 
+                  onClose={() => setShowOnboarding(false)} 
+                  darkMode={darkMode} 
                 />
               </>
             } 

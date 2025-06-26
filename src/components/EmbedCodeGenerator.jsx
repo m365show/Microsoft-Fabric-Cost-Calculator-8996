@@ -10,13 +10,19 @@ const EmbedCodeGenerator = ({ darkMode }) => {
   const [embedType, setEmbedType] = useState('multi-step');
   const [embedSize, setEmbedSize] = useState('large');
 
-  const baseUrl = window.location.origin;
-  
+  // Dynamic URL detection
+  const getBaseUrl = () => {
+    if (typeof window !== 'undefined') {
+      return `${window.location.protocol}//${window.location.host}`;
+    }
+    return '';
+  };
+
   const embedConfigs = {
     'multi-step': {
       name: 'Multi-Step Calculator',
       description: 'Guided step-by-step process (Recommended)',
-      path: '/#/embed/multi-step',
+      path: '/embed/multi-step',
       sizes: {
         small: { width: 400, height: 500 },
         medium: { width: 500, height: 600 },
@@ -26,7 +32,7 @@ const EmbedCodeGenerator = ({ darkMode }) => {
     compact: {
       name: 'Compact Calculator',
       description: 'Multi-step wizard format',
-      path: '/#/embed/compact',
+      path: '/embed/compact',
       sizes: {
         small: { width: 400, height: 500 },
         medium: { width: 500, height: 600 },
@@ -36,7 +42,7 @@ const EmbedCodeGenerator = ({ darkMode }) => {
     widescreen: {
       name: 'Widescreen Calculator',
       description: '16:9 layout with simplified interface',
-      path: '/#/embed/widescreen',
+      path: '/embed/widescreen',
       sizes: {
         small: { width: 640, height: 360 },
         medium: { width: 854, height: 480 },
@@ -46,7 +52,7 @@ const EmbedCodeGenerator = ({ darkMode }) => {
     full: {
       name: 'Full Calculator',
       description: 'Complete calculator with all features',
-      path: '/#/embed/full',
+      path: '/embed/full',
       sizes: {
         small: { width: 800, height: 600 },
         medium: { width: 1000, height: 800 },
@@ -57,7 +63,7 @@ const EmbedCodeGenerator = ({ darkMode }) => {
 
   const currentConfig = embedConfigs[embedType];
   const currentSize = currentConfig.sizes[embedSize];
-  const embedUrl = `${baseUrl}${currentConfig.path}`;
+  const embedUrl = `${getBaseUrl()}${currentConfig.path}`;
 
   const generateEmbedCode = () => {
     return `<iframe src="${embedUrl}" width="${currentSize.width}" height="${currentSize.height}" frameborder="0" allowfullscreen style="border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-width: 100%;">
@@ -169,35 +175,6 @@ const EmbedCodeGenerator = ({ darkMode }) => {
         </div>
       </div>
 
-      {/* Test Link */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-lg font-medium">Test Embed</h3>
-          <a
-            href={embedUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={`flex items-center space-x-2 px-3 py-1 rounded-lg text-sm transition-colors ${
-              darkMode
-                ? 'bg-gray-700 hover:bg-gray-600 text-gray-300'
-                : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
-            }`}
-          >
-            <SafeIcon icon={FiExternalLink} />
-            <span>Open in New Tab</span>
-          </a>
-        </div>
-        
-        <div className={`p-4 rounded-lg border-2 border-dashed ${
-          darkMode ? 'border-gray-600 bg-gray-900/50' : 'border-gray-300 bg-gray-50'
-        }`}>
-          <p className="text-sm text-center text-gray-500">
-            Click "Open in New Tab" above to test the embed URL: <br/>
-            <code className="text-xs">{embedUrl}</code>
-          </p>
-        </div>
-      </div>
-
       {/* Generated Code */}
       <div className="space-y-4">
         {/* Standard Embed Code */}
@@ -255,19 +232,40 @@ const EmbedCodeGenerator = ({ darkMode }) => {
         </div>
       </div>
 
-      {/* Usage Tips */}
+      {/* Current URLs for Testing */}
       <div className={`mt-6 p-4 rounded-lg ${
         darkMode ? 'bg-blue-900/20 border border-blue-700' : 'bg-blue-50 border border-blue-200'
       }`}>
-        <h4 className="font-medium text-blue-600 mb-2">💡 Embedding Tips</h4>
+        <h4 className="font-medium text-blue-600 mb-2">🔗 Test These URLs</h4>
+        <div className="space-y-2 text-sm">
+          {Object.entries(embedConfigs).map(([key, config]) => (
+            <div key={key} className="flex items-center justify-between">
+              <span className="font-medium">{config.name}:</span>
+              <a 
+                href={`${getBaseUrl()}${config.path}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:text-blue-700 underline"
+              >
+                {`${getBaseUrl()}${config.path}`}
+              </a>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Usage Tips */}
+      <div className={`mt-6 p-4 rounded-lg ${
+        darkMode ? 'bg-green-900/20 border border-green-700' : 'bg-green-50 border border-green-200'
+      }`}>
+        <h4 className="font-medium text-green-600 mb-2">💡 Embedding Tips</h4>
         <ul className="text-sm space-y-1">
           <li>• Use responsive code for mobile-friendly websites</li>
           <li>• Multi-step format is recommended for best user experience</li>
           <li>• Widescreen format works great in blog posts and articles</li>
           <li>• Compact format is perfect for sidebars and widgets</li>
           <li>• All embeds include dark mode support</li>
-          <li>• Users can interact fully with embedded calculators</li>
-          <li>• URLs include hash (#) for proper routing</li>
+          <li>• URLs work on both staging and production automatically</li>
         </ul>
       </div>
     </motion.div>
