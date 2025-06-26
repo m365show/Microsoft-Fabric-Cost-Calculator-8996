@@ -6,7 +6,7 @@ import { fabricPricing } from '../data/pricingData';
 
 const { FiServer, FiGlobe, FiSettings, FiDollarSign, FiChevronRight, FiChevronLeft, FiCheck, FiDownload, FiShare2, FiCopy } = FiIcons;
 
-const EmbedMultiStepCalculator = ({ darkMode }) => {
+const EmbedMultiStepCalculator = ({ darkMode = false }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [copied, setCopied] = useState(false);
   const [config, setConfig] = useState({
@@ -21,6 +21,20 @@ const EmbedMultiStepCalculator = ({ darkMode }) => {
     }
   });
 
+  // Ensure fabricPricing is available
+  if (!fabricPricing || !fabricPricing.capacity || !fabricPricing.workloads) {
+    return (
+      <div className={`w-full h-full flex items-center justify-center ${
+        darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'
+      }`}>
+        <div className="text-center">
+          <div className="text-xl font-semibold mb-2">Loading Calculator...</div>
+          <div className="text-gray-500">Please wait while we load the pricing data.</div>
+        </div>
+      </div>
+    );
+  }
+
   const steps = [
     {
       id: 'capacity',
@@ -32,8 +46,8 @@ const EmbedMultiStepCalculator = ({ darkMode }) => {
           <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
             Select the capacity tier that matches your team size and data processing needs:
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {Object.entries(fabricPricing.capacity).slice(0, 8).map(([tier, price]) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-96 overflow-y-auto">
+            {Object.entries(fabricPricing.capacity).map(([tier, price]) => (
               <motion.button
                 key={tier}
                 whileHover={{ scale: 1.02 }}
@@ -124,7 +138,7 @@ const EmbedMultiStepCalculator = ({ darkMode }) => {
           <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
             Select and configure the workloads you need:
           </p>
-          <div className="space-y-4">
+          <div className="space-y-4 max-h-96 overflow-y-auto">
             {Object.entries(fabricPricing.workloads).map(([key, pricing]) => {
               const workload = config.workloads[key] || { enabled: false, usage: 0 };
               return (
@@ -223,7 +237,7 @@ const EmbedMultiStepCalculator = ({ darkMode }) => {
                       <div>
                         <span className="font-medium">{pricing.name}</span>
                         <div className="text-sm text-gray-500">
-                          {workload.usage} {pricing.unit}
+                          {workload.usage.toLocaleString()} {pricing.unit}
                         </div>
                       </div>
                       <span className="text-lg font-bold text-purple-600">

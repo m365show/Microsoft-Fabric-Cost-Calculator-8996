@@ -13,7 +13,9 @@ const EmbedWidescreenCalculator = ({ darkMode }) => {
     workloads: {
       dataFactory: { enabled: false, usage: 0 },
       synapse: { enabled: false, usage: 0 },
-      powerBI: { enabled: false, usage: 0 }
+      powerBI: { enabled: false, usage: 0 },
+      dataActivator: { enabled: false, usage: 0 },
+      realTimeAnalytics: { enabled: false, usage: 0 }
     }
   });
 
@@ -72,14 +74,14 @@ const EmbedWidescreenCalculator = ({ darkMode }) => {
         {/* Left Panel - Configuration */}
         <div className={`w-2/3 p-6 ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
-            {/* Capacity Selection */}
+            {/* Capacity Selection - ALL OPTIONS */}
             <div className="space-y-4">
               <div className="flex items-center space-x-2 mb-4">
                 <SafeIcon icon={FiServer} className="text-blue-600" />
                 <h3 className="text-lg font-semibold">Capacity</h3>
               </div>
-              <div className="space-y-2">
-                {Object.entries(fabricPricing.capacity).slice(0, 6).map(([tier, price]) => (
+              <div className="space-y-2 max-h-80 overflow-y-auto">
+                {Object.entries(fabricPricing.capacity).map(([tier, price]) => (
                   <motion.button
                     key={tier}
                     whileHover={{ scale: 1.02 }}
@@ -94,7 +96,7 @@ const EmbedWidescreenCalculator = ({ darkMode }) => {
                     }`}
                   >
                     <div className="font-medium">{tier}</div>
-                    <div className="text-sm text-gray-500">${price}/month</div>
+                    <div className="text-sm text-gray-500">${price.toLocaleString()}/month</div>
                   </motion.button>
                 ))}
               </div>
@@ -135,14 +137,14 @@ const EmbedWidescreenCalculator = ({ darkMode }) => {
               </div>
             </div>
 
-            {/* Workloads */}
+            {/* Workloads - ALL WORKLOADS */}
             <div className="space-y-4">
               <div className="flex items-center space-x-2 mb-4">
                 <SafeIcon icon={FiSettings} className="text-green-600" />
                 <h3 className="text-lg font-semibold">Workloads</h3>
               </div>
-              <div className="space-y-3">
-                {Object.entries(fabricPricing.workloads).slice(0, 3).map(([key, pricing]) => {
+              <div className="space-y-3 max-h-80 overflow-y-auto">
+                {Object.entries(fabricPricing.workloads).map(([key, pricing]) => {
                   const workload = config.workloads[key] || { enabled: false, usage: 0 };
                   return (
                     <div
@@ -171,11 +173,14 @@ const EmbedWidescreenCalculator = ({ darkMode }) => {
                             min="0"
                             value={workload.usage}
                             onChange={(e) => updateWorkload(key, { usage: parseFloat(e.target.value) || 0 })}
-                            placeholder="Usage"
+                            placeholder={`Usage (${pricing.unit})`}
                             className={`w-full p-2 text-sm rounded border ${
                               darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300'
                             }`}
                           />
+                          <div className="text-xs text-gray-500 mt-1">
+                            ${pricing.baseRate} {pricing.unit}
+                          </div>
                         </motion.div>
                       )}
                     </div>
@@ -224,7 +229,7 @@ const EmbedWidescreenCalculator = ({ darkMode }) => {
                       </span>
                     </div>
                     <div className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                      {workload.usage} {pricing.unit}
+                      {workload.usage.toLocaleString()} {pricing.unit}
                     </div>
                   </div>
                 );

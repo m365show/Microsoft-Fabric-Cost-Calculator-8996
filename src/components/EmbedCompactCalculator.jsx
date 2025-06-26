@@ -6,13 +6,27 @@ import { fabricPricing } from '../data/pricingData';
 
 const { FiDollarSign, FiChevronRight, FiChevronLeft, FiCheck } = FiIcons;
 
-const EmbedCompactCalculator = ({ darkMode }) => {
+const EmbedCompactCalculator = ({ darkMode = false }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [config, setConfig] = useState({
     capacity: 'F2',
     region: 'us-east',
     workloads: {}
   });
+
+  // Ensure fabricPricing is available
+  if (!fabricPricing || !fabricPricing.capacity || !fabricPricing.workloads) {
+    return (
+      <div className={`max-w-md mx-auto ${
+        darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'
+      } rounded-xl shadow-lg overflow-hidden flex items-center justify-center`} style={{ minHeight: '400px' }}>
+        <div className="text-center">
+          <div className="text-lg font-semibold mb-2">Loading Calculator...</div>
+          <div className="text-gray-500">Please wait...</div>
+        </div>
+      </div>
+    );
+  }
 
   const steps = [
     {
@@ -23,8 +37,8 @@ const EmbedCompactCalculator = ({ darkMode }) => {
           <p className="text-sm text-gray-600 dark:text-gray-400">
             Choose your Microsoft Fabric capacity tier:
           </p>
-          <div className="grid grid-cols-2 gap-2">
-            {Object.entries(fabricPricing.capacity).slice(0, 6).map(([tier, price]) => (
+          <div className="grid grid-cols-2 gap-2 max-h-60 overflow-y-auto">
+            {Object.entries(fabricPricing.capacity).map(([tier, price]) => (
               <motion.button
                 key={tier}
                 whileHover={{ scale: 1.02 }}
@@ -39,7 +53,7 @@ const EmbedCompactCalculator = ({ darkMode }) => {
                 }`}
               >
                 <div className="font-medium text-sm">{tier}</div>
-                <div className="text-xs text-gray-500">${price}/month</div>
+                <div className="text-xs text-gray-500">${price.toLocaleString()}/month</div>
               </motion.button>
             ))}
           </div>
@@ -92,7 +106,7 @@ const EmbedCompactCalculator = ({ darkMode }) => {
           <p className="text-sm text-gray-600 dark:text-gray-400">
             Enable and configure your workloads:
           </p>
-          <div className="space-y-3">
+          <div className="space-y-3 max-h-64 overflow-y-auto">
             {Object.entries(fabricPricing.workloads).map(([key, pricing]) => {
               const workload = config.workloads[key] || { enabled: false, usage: 0 };
               const displayName = pricing.name;

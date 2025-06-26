@@ -54,7 +54,7 @@ function App() {
           <Route 
             path="/embed/multi-step" 
             element={
-              <div className="w-full h-screen p-4">
+              <div className="w-full min-h-screen p-2 md:p-4">
                 <EmbedMultiStepCalculator darkMode={darkMode} />
               </div>
             } 
@@ -62,7 +62,7 @@ function App() {
           <Route 
             path="/embed/compact" 
             element={
-              <div className="w-full h-screen p-4">
+              <div className="w-full min-h-screen p-2 md:p-4 flex items-center justify-center">
                 <EmbedCompactCalculator darkMode={darkMode} />
               </div>
             } 
@@ -70,7 +70,7 @@ function App() {
           <Route 
             path="/embed/widescreen" 
             element={
-              <div className="w-full h-screen">
+              <div className="w-full min-h-screen">
                 <EmbedWidescreenCalculator darkMode={darkMode} />
               </div>
             } 
@@ -78,7 +78,7 @@ function App() {
           <Route 
             path="/embed/full" 
             element={
-              <div className="w-full min-h-screen p-4">
+              <div className="w-full min-h-screen p-2 md:p-4">
                 <EmbedFullCalculator darkMode={darkMode} />
               </div>
             } 
@@ -86,7 +86,7 @@ function App() {
           <Route 
             path="/embed" 
             element={
-              <div className="w-full h-screen p-4">
+              <div className="w-full min-h-screen p-2 md:p-4">
                 <EmbedMultiStepCalculator darkMode={darkMode} />
               </div>
             } 
