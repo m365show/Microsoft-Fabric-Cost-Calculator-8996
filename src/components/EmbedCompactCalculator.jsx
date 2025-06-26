@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import * as FiIcons from 'react-icons/fi';
 import SafeIcon from '../common/SafeIcon';
 
 const { FiDollarSign, FiChevronRight, FiChevronLeft, FiCheck } = FiIcons;
 
-// Fallback pricing data
-const fallbackPricing = {
+// Standalone pricing data for embed
+const PRICING_DATA = {
   capacity: {
     F2: 263,
     F4: 526,
@@ -54,29 +54,11 @@ const fallbackPricing = {
 
 const EmbedCompactCalculator = ({ darkMode = false }) => {
   const [currentStep, setCurrentStep] = useState(0);
-  const [pricingData, setPricingData] = useState(fallbackPricing);
   const [config, setConfig] = useState({
     capacity: 'F2',
     region: 'us-east',
     workloads: {}
   });
-
-  // Load pricing data with fallback
-  useEffect(() => {
-    const loadPricingData = async () => {
-      try {
-        const { fabricPricing } = await import('../data/pricingData');
-        if (fabricPricing && fabricPricing.capacity && fabricPricing.workloads) {
-          setPricingData(fabricPricing);
-        }
-      } catch (error) {
-        console.warn('Using fallback pricing data:', error);
-        setPricingData(fallbackPricing);
-      }
-    };
-
-    loadPricingData();
-  }, []);
 
   const steps = [
     {
@@ -88,7 +70,7 @@ const EmbedCompactCalculator = ({ darkMode = false }) => {
             Choose your Microsoft Fabric capacity tier:
           </p>
           <div className="grid grid-cols-2 gap-2 max-h-60 overflow-y-auto">
-            {Object.entries(pricingData.capacity).map(([tier, price]) => (
+            {Object.entries(PRICING_DATA.capacity).map(([tier, price]) => (
               <motion.button
                 key={tier}
                 whileHover={{ scale: 1.02 }}
@@ -157,7 +139,7 @@ const EmbedCompactCalculator = ({ darkMode = false }) => {
             Enable and configure your workloads:
           </p>
           <div className="space-y-3 max-h-64 overflow-y-auto">
-            {Object.entries(pricingData.workloads).map(([key, pricing]) => {
+            {Object.entries(PRICING_DATA.workloads).map(([key, pricing]) => {
               const workload = config.workloads[key] || { enabled: false, usage: 0 };
               const displayName = pricing.name;
               return (
@@ -247,7 +229,7 @@ const EmbedCompactCalculator = ({ darkMode = false }) => {
               .filter(([_, workload]) => workload.enabled && workload.usage > 0)
               .map(([key, workload]) => {
                 const cost = calculateWorkloadCost(key, workload);
-                const displayName = pricingData.workloads[key]?.name || key;
+                const displayName = PRICING_DATA.workloads[key]?.name || key;
                 return (
                   <div key={key} className="flex justify-between text-sm">
                     <span>{displayName}</span>
@@ -268,7 +250,7 @@ const EmbedCompactCalculator = ({ darkMode = false }) => {
   ];
 
   const calculateWorkloadCost = (key, workload) => {
-    const pricing = pricingData.workloads[key];
+    const pricing = PRICING_DATA.workloads[key];
     if (!pricing || !workload.enabled) return 0;
 
     const regionMultiplier = config.region === 'europe' ? 1.1 : config.region === 'asia' ? 1.2 : 1.0;
@@ -277,7 +259,7 @@ const EmbedCompactCalculator = ({ darkMode = false }) => {
 
   const getCapacityCost = () => {
     const regionMultiplier = config.region === 'europe' ? 1.1 : config.region === 'asia' ? 1.2 : 1.0;
-    return pricingData.capacity[config.capacity] * regionMultiplier;
+    return PRICING_DATA.capacity[config.capacity] * regionMultiplier;
   };
 
   const calculateTotalCost = () => {
@@ -299,11 +281,13 @@ const EmbedCompactCalculator = ({ darkMode = false }) => {
     }
   };
 
+  console.log('EmbedCompactCalculator rendering...'); // Debug log
+
   return (
-    <div className={`w-full min-h-screen flex items-center justify-center p-4 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
-      <div className={`max-w-md mx-auto ${darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'} rounded-xl shadow-lg overflow-hidden`}>
+    <div className="w-full min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4">
+      <div className="max-w-md mx-auto bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-xl shadow-lg overflow-hidden">
         {/* Header */}
-        <div className={`p-4 border-b ${darkMode ? 'border-gray-700 bg-gray-900' : 'border-gray-200 bg-gray-50'}`}>
+        <div className="p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
           <h2 className="text-lg font-semibold text-center">
             Microsoft Fabric Cost Estimator
           </h2>
@@ -317,9 +301,7 @@ const EmbedCompactCalculator = ({ darkMode = false }) => {
                       ? 'bg-blue-600'
                       : index < currentStep
                       ? 'bg-green-600'
-                      : darkMode
-                      ? 'bg-gray-600'
-                      : 'bg-gray-300'
+                      : 'bg-gray-300 dark:bg-gray-600'
                   }`}
                 />
               ))}
@@ -329,30 +311,20 @@ const EmbedCompactCalculator = ({ darkMode = false }) => {
 
         {/* Content */}
         <div className="p-4" style={{ minHeight: '300px' }}>
-          <motion.div
-            key={currentStep}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.3 }}
-          >
-            <h3 className="text-lg font-medium mb-4">{steps[currentStep].title}</h3>
-            {steps[currentStep].content}
-          </motion.div>
+          <h3 className="text-lg font-medium mb-4">{steps[currentStep].title}</h3>
+          {steps[currentStep].content}
         </div>
 
         {/* Navigation */}
-        <div className={`p-4 border-t flex justify-between ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+        <div className="p-4 border-t border-gray-200 dark:border-gray-700 flex justify-between">
           <button
             onClick={prevStep}
             disabled={currentStep === 0}
             className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
               currentStep === 0
-                ? 'opacity-50 cursor-not-allowed'
-                : darkMode
-                ? 'bg-gray-700 hover:bg-gray-600 text-white'
-                : 'bg-gray-200 hover:bg-gray-300 text-gray-900'
-            }`}
+                ? 'opacity-50 cursor-not-allowed bg-gray-200 dark:bg-gray-700'
+                : 'bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600'
+            } text-gray-900 dark:text-white`}
           >
             <SafeIcon icon={FiChevronLeft} />
             <span>Back</span>

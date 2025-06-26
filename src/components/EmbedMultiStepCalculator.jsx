@@ -5,8 +5,8 @@ import SafeIcon from '../common/SafeIcon';
 
 const { FiServer, FiGlobe, FiSettings, FiDollarSign, FiChevronRight, FiChevronLeft, FiCheck, FiDownload, FiShare2, FiCopy } = FiIcons;
 
-// Fallback pricing data in case import fails
-const fallbackPricing = {
+// Standalone pricing data for embed
+const PRICING_DATA = {
   capacity: {
     F2: 263,
     F4: 526,
@@ -55,7 +55,6 @@ const fallbackPricing = {
 const EmbedMultiStepCalculator = ({ darkMode = false }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [copied, setCopied] = useState(false);
-  const [pricingData, setPricingData] = useState(fallbackPricing);
   const [config, setConfig] = useState({
     capacity: 'F2',
     region: 'us-east',
@@ -67,23 +66,6 @@ const EmbedMultiStepCalculator = ({ darkMode = false }) => {
       realTimeAnalytics: { enabled: false, usage: 0 }
     }
   });
-
-  // Load pricing data with fallback
-  useEffect(() => {
-    const loadPricingData = async () => {
-      try {
-        const { fabricPricing } = await import('../data/pricingData');
-        if (fabricPricing && fabricPricing.capacity && fabricPricing.workloads) {
-          setPricingData(fabricPricing);
-        }
-      } catch (error) {
-        console.warn('Using fallback pricing data:', error);
-        setPricingData(fallbackPricing);
-      }
-    };
-
-    loadPricingData();
-  }, []);
 
   // Initialize from URL parameters if available
   useEffect(() => {
@@ -123,7 +105,7 @@ const EmbedMultiStepCalculator = ({ darkMode = false }) => {
             Select the capacity tier that matches your team size and data processing needs:
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-96 overflow-y-auto">
-            {Object.entries(pricingData.capacity).map(([tier, price]) => (
+            {Object.entries(PRICING_DATA.capacity).map(([tier, price]) => (
               <motion.button
                 key={tier}
                 whileHover={{ scale: 1.02 }}
@@ -215,7 +197,7 @@ const EmbedMultiStepCalculator = ({ darkMode = false }) => {
             Select and configure the workloads you need:
           </p>
           <div className="space-y-4 max-h-96 overflow-y-auto">
-            {Object.entries(pricingData.workloads).map(([key, pricing]) => {
+            {Object.entries(PRICING_DATA.workloads).map(([key, pricing]) => {
               const workload = config.workloads[key] || { enabled: false, usage: 0 };
               return (
                 <div key={key} className={`p-4 rounded-lg border ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>
@@ -309,7 +291,7 @@ const EmbedMultiStepCalculator = ({ darkMode = false }) => {
               .filter(([_, workload]) => workload.enabled && workload.usage > 0)
               .map(([key, workload]) => {
                 const cost = calculateWorkloadCost(key, workload);
-                const pricing = pricingData.workloads[key];
+                const pricing = PRICING_DATA.workloads[key];
                 return (
                   <div key={key} className={`p-4 rounded-lg ${darkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
                     <div className="flex justify-between items-center">
@@ -363,7 +345,7 @@ const EmbedMultiStepCalculator = ({ darkMode = false }) => {
   ];
 
   const calculateWorkloadCost = (key, workload) => {
-    const pricing = pricingData.workloads[key];
+    const pricing = PRICING_DATA.workloads[key];
     if (!pricing || !workload.enabled) return 0;
 
     const regionMultiplier = config.region === 'europe' ? 1.1 : config.region === 'asia' ? 1.2 : 1.0;
@@ -372,7 +354,7 @@ const EmbedMultiStepCalculator = ({ darkMode = false }) => {
 
   const getCapacityCost = () => {
     const regionMultiplier = config.region === 'europe' ? 1.1 : config.region === 'asia' ? 1.2 : 1.0;
-    return pricingData.capacity[config.capacity] * regionMultiplier;
+    return PRICING_DATA.capacity[config.capacity] * regionMultiplier;
   };
 
   const calculateTotalCost = () => {
@@ -455,11 +437,13 @@ const EmbedMultiStepCalculator = ({ darkMode = false }) => {
     }
   };
 
+  console.log('EmbedMultiStepCalculator rendering...'); // Debug log
+
   return (
-    <div className={`w-full min-h-screen flex items-center justify-center p-4 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
-      <div className={`w-full max-w-4xl ${darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'} rounded-xl shadow-lg`}>
+    <div className="w-full min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4">
+      <div className="w-full max-w-4xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-xl shadow-lg">
         {/* Header */}
-        <div className={`p-6 border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
           <div className="text-center">
             <h2 className="text-2xl font-bold mb-2">
               Microsoft Fabric Cost Calculator
@@ -480,11 +464,9 @@ const EmbedMultiStepCalculator = ({ darkMode = false }) => {
               </span>
             </div>
             <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: `${((currentStep + 1) / steps.length) * 100}%` }}
-                transition={{ duration: 0.3 }}
-                className="h-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full"
+              <div
+                style={{ width: `${((currentStep + 1) / steps.length) * 100}%` }}
+                className="h-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full transition-all duration-300"
               />
             </div>
           </div>
@@ -499,9 +481,7 @@ const EmbedMultiStepCalculator = ({ darkMode = false }) => {
                     ? 'bg-blue-600'
                     : index < currentStep
                     ? 'bg-green-600'
-                    : darkMode
-                    ? 'bg-gray-600'
-                    : 'bg-gray-300'
+                    : 'bg-gray-300 dark:bg-gray-600'
                 }`}
               />
             ))}
@@ -510,37 +490,25 @@ const EmbedMultiStepCalculator = ({ darkMode = false }) => {
 
         {/* Content */}
         <div className="p-6" style={{ minHeight: '400px' }}>
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={currentStep}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.3 }}
-            >
-              <div className="flex items-center space-x-3 mb-6">
-                <div className={`p-3 rounded-lg ${darkMode ? 'bg-blue-900/30' : 'bg-blue-100'}`}>
-                  <SafeIcon icon={steps[currentStep].icon} className="text-blue-600 text-xl" />
-                </div>
-                <h3 className="text-xl font-semibold">{steps[currentStep].title}</h3>
-              </div>
-              {steps[currentStep].content}
-            </motion.div>
-          </AnimatePresence>
+          <div className="flex items-center space-x-3 mb-6">
+            <div className="p-3 rounded-lg bg-blue-100 dark:bg-blue-900/30">
+              <SafeIcon icon={steps[currentStep].icon} className="text-blue-600 text-xl" />
+            </div>
+            <h3 className="text-xl font-semibold">{steps[currentStep].title}</h3>
+          </div>
+          {steps[currentStep].content}
         </div>
 
         {/* Navigation */}
-        <div className={`p-6 border-t flex justify-between ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+        <div className="p-6 border-t border-gray-200 dark:border-gray-700 flex justify-between">
           <button
             onClick={prevStep}
             disabled={currentStep === 0}
             className={`flex items-center space-x-2 px-6 py-3 rounded-lg transition-colors ${
               currentStep === 0
-                ? 'opacity-50 cursor-not-allowed'
-                : darkMode
-                ? 'bg-gray-700 hover:bg-gray-600 text-white'
-                : 'bg-gray-200 hover:bg-gray-300 text-gray-900'
-            }`}
+                ? 'opacity-50 cursor-not-allowed bg-gray-200 dark:bg-gray-700'
+                : 'bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600'
+            } text-gray-900 dark:text-white`}
           >
             <SafeIcon icon={FiChevronLeft} />
             <span>Previous</span>

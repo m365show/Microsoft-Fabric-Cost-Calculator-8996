@@ -56,7 +56,7 @@ function App() {
     }`}>
       <Router>
         <Routes>
-          {/* Embed Routes - No Header, Full Screen, Standalone */}
+          {/* EMBED ROUTES FIRST - These must be exact matches */}
           <Route 
             path="/embed/multi-step" 
             element={<EmbedMultiStepCalculator darkMode={darkMode} />} 
@@ -78,38 +78,112 @@ function App() {
             element={<EmbedMultiStepCalculator darkMode={darkMode} />} 
           />
 
-          {/* Main App Routes - With Header */}
-          <Route 
-            path="/*" 
-            element={
-              <>
-                <Header darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
-                <motion.main
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5 }}
-                  className="container mx-auto px-4 py-6 md:py-8"
-                >
-                  <Routes>
-                    <Route path="/" element={<CostCalculator darkMode={darkMode} />} />
-                    <Route path="/pricing" element={<PricingInfo darkMode={darkMode} />} />
-                    <Route path="/compare" element={<ComparisonTool darkMode={darkMode} />} />
-                    <Route path="/help" element={<HelpPage darkMode={darkMode} />} />
-                    <Route path="/embed-generator" element={<EmbedCodeGenerator darkMode={darkMode} />} />
-                  </Routes>
-                </motion.main>
+          {/* MAIN APP ROUTES */}
+          <Route path="/pricing" element={
+            <>
+              <Header darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
+              <motion.main
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="container mx-auto px-4 py-6 md:py-8"
+              >
+                <PricingInfo darkMode={darkMode} />
+              </motion.main>
+              {!isEmbedRoute && (
+                <OnboardingModal 
+                  isOpen={showOnboarding} 
+                  onClose={() => setShowOnboarding(false)} 
+                  darkMode={darkMode} 
+                />
+              )}
+            </>
+          } />
+          
+          <Route path="/compare" element={
+            <>
+              <Header darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
+              <motion.main
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="container mx-auto px-4 py-6 md:py-8"
+              >
+                <ComparisonTool darkMode={darkMode} />
+              </motion.main>
+              {!isEmbedRoute && (
+                <OnboardingModal 
+                  isOpen={showOnboarding} 
+                  onClose={() => setShowOnboarding(false)} 
+                  darkMode={darkMode} 
+                />
+              )}
+            </>
+          } />
+          
+          <Route path="/help" element={
+            <>
+              <Header darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
+              <motion.main
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="container mx-auto px-4 py-6 md:py-8"
+              >
+                <HelpPage darkMode={darkMode} />
+              </motion.main>
+              {!isEmbedRoute && (
+                <OnboardingModal 
+                  isOpen={showOnboarding} 
+                  onClose={() => setShowOnboarding(false)} 
+                  darkMode={darkMode} 
+                />
+              )}
+            </>
+          } />
+          
+          <Route path="/embed-generator" element={
+            <>
+              <Header darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
+              <motion.main
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="container mx-auto px-4 py-6 md:py-8"
+              >
+                <EmbedCodeGenerator darkMode={darkMode} />
+              </motion.main>
+              {!isEmbedRoute && (
+                <OnboardingModal 
+                  isOpen={showOnboarding} 
+                  onClose={() => setShowOnboarding(false)} 
+                  darkMode={darkMode} 
+                />
+              )}
+            </>
+          } />
 
-                {/* First-time visitor onboarding - only for non-embed routes */}
-                {!isEmbedRoute && (
-                  <OnboardingModal 
-                    isOpen={showOnboarding} 
-                    onClose={() => setShowOnboarding(false)} 
-                    darkMode={darkMode} 
-                  />
-                )}
-              </>
-            } 
-          />
+          {/* DEFAULT HOME ROUTE */}
+          <Route path="/" element={
+            <>
+              <Header darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
+              <motion.main
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="container mx-auto px-4 py-6 md:py-8"
+              >
+                <CostCalculator darkMode={darkMode} />
+              </motion.main>
+              {!isEmbedRoute && (
+                <OnboardingModal 
+                  isOpen={showOnboarding} 
+                  onClose={() => setShowOnboarding(false)} 
+                  darkMode={darkMode} 
+                />
+              )}
+            </>
+          } />
         </Routes>
       </Router>
     </div>
