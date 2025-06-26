@@ -47,6 +47,9 @@ function App() {
     setDarkMode(!darkMode);
   };
 
+  // Check if current route is an embed route
+  const isEmbedRoute = window.location.hash.includes('/embed');
+
   return (
     <div className={`min-h-screen transition-colors duration-300 ${
       darkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'
@@ -56,43 +59,23 @@ function App() {
           {/* Embed Routes - No Header, Full Screen, Standalone */}
           <Route 
             path="/embed/multi-step" 
-            element={
-              <div className="w-full min-h-screen bg-gray-50 dark:bg-gray-900">
-                <EmbedMultiStepCalculator darkMode={darkMode} />
-              </div>
-            } 
+            element={<EmbedMultiStepCalculator darkMode={darkMode} />} 
           />
           <Route 
             path="/embed/compact" 
-            element={
-              <div className="w-full min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4">
-                <EmbedCompactCalculator darkMode={darkMode} />
-              </div>
-            } 
+            element={<EmbedCompactCalculator darkMode={darkMode} />} 
           />
           <Route 
             path="/embed/widescreen" 
-            element={
-              <div className="w-full min-h-screen bg-gray-50 dark:bg-gray-900">
-                <EmbedWidescreenCalculator darkMode={darkMode} />
-              </div>
-            } 
+            element={<EmbedWidescreenCalculator darkMode={darkMode} />} 
           />
           <Route 
             path="/embed/full" 
-            element={
-              <div className="w-full min-h-screen bg-gray-50 dark:bg-gray-900 p-4">
-                <EmbedFullCalculator darkMode={darkMode} />
-              </div>
-            } 
+            element={<EmbedFullCalculator darkMode={darkMode} />} 
           />
           <Route 
             path="/embed" 
-            element={
-              <div className="w-full min-h-screen bg-gray-50 dark:bg-gray-900">
-                <EmbedMultiStepCalculator darkMode={darkMode} />
-              </div>
-            } 
+            element={<EmbedMultiStepCalculator darkMode={darkMode} />} 
           />
 
           {/* Main App Routes - With Header */}
@@ -117,11 +100,13 @@ function App() {
                 </motion.main>
 
                 {/* First-time visitor onboarding - only for non-embed routes */}
-                <OnboardingModal 
-                  isOpen={showOnboarding} 
-                  onClose={() => setShowOnboarding(false)} 
-                  darkMode={darkMode} 
-                />
+                {!isEmbedRoute && (
+                  <OnboardingModal 
+                    isOpen={showOnboarding} 
+                    onClose={() => setShowOnboarding(false)} 
+                    darkMode={darkMode} 
+                  />
+                )}
               </>
             } 
           />

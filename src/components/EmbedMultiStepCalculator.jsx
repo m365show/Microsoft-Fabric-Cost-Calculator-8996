@@ -2,13 +2,60 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import * as FiIcons from 'react-icons/fi';
 import SafeIcon from '../common/SafeIcon';
-import { fabricPricing } from '../data/pricingData';
 
 const { FiServer, FiGlobe, FiSettings, FiDollarSign, FiChevronRight, FiChevronLeft, FiCheck, FiDownload, FiShare2, FiCopy } = FiIcons;
+
+// Fallback pricing data in case import fails
+const fallbackPricing = {
+  capacity: {
+    F2: 263,
+    F4: 526,
+    F8: 1052,
+    F16: 2104,
+    F32: 4208,
+    F64: 8416,
+    F128: 16832,
+    F256: 33664,
+    F512: 67328
+  },
+  workloads: {
+    dataFactory: {
+      name: 'Data Factory',
+      baseRate: 0.50,
+      unit: 'per pipeline run',
+      description: 'ETL/ELT data integration and transformation pipelines'
+    },
+    synapse: {
+      name: 'Synapse Analytics',
+      baseRate: 2.00,
+      unit: 'per compute hour',
+      description: 'Data warehousing and big data analytics platform'
+    },
+    powerBI: {
+      name: 'Power BI Premium',
+      baseRate: 10.00,
+      unit: 'per user per month',
+      description: 'Advanced business intelligence and reporting capabilities'
+    },
+    dataActivator: {
+      name: 'Data Activator',
+      baseRate: 0.10,
+      unit: 'per 1,000 events',
+      description: 'Real-time data monitoring and automated alerting'
+    },
+    realTimeAnalytics: {
+      name: 'Real-Time Analytics',
+      baseRate: 1.50,
+      unit: 'per processing hour',
+      description: 'Stream processing and real-time data analytics'
+    }
+  }
+};
 
 const EmbedMultiStepCalculator = ({ darkMode = false }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [copied, setCopied] = useState(false);
+  const [pricingData, setPricingData] = useState(fallbackPricing);
   const [config, setConfig] = useState({
     capacity: 'F2',
     region: 'us-east',
@@ -21,34 +68,48 @@ const EmbedMultiStepCalculator = ({ darkMode = false }) => {
     }
   });
 
-  // Initialize from URL parameters if available
+  // Load pricing data with fallback
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const capacityParam = urlParams.get('capacity');
-    const regionParam = urlParams.get('region');
-    const workloadsParam = urlParams.get('workloads');
+    const loadPricingData = async () => {
+      try {
+        const { fabricPricing } = await import('../data/pricingData');
+        if (fabricPricing && fabricPricing.capacity && fabricPricing.workloads) {
+          setPricingData(fabricPricing);
+        }
+      } catch (error) {
+        console.warn('Using fallback pricing data:', error);
+        setPricingData(fallbackPricing);
+      }
+    };
 
-    if (capacityParam || regionParam || workloadsParam) {
-      setConfig(prev => ({
-        ...prev,
-        ...(capacityParam && { capacity: capacityParam }),
-        ...(regionParam && { region: regionParam }),
-        ...(workloadsParam && { workloads: { ...prev.workloads, ...JSON.parse(workloadsParam) } })
-      }));
-    }
+    loadPricingData();
   }, []);
 
-  // Ensure fabricPricing is available
-  if (!fabricPricing || !fabricPricing.capacity || !fabricPricing.workloads) {
-    return (
-      <div className={`w-full h-full flex items-center justify-center ${darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'}`}>
-        <div className="text-center">
-          <div className="text-xl font-semibold mb-2">Loading Calculator...</div>
-          <div className="text-gray-500">Please wait while we load the pricing data.</div>
-        </div>
-      </div>
-    );
-  }
+  // Initialize from URL parameters if available
+  useEffect(() => {
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      const capacityParam = urlParams.get('capacity');
+      const regionParam = urlParams.get('region');
+      const workloadsParam = urlParams.get('workloads');
+
+      if (capacityParam || regionParam || workloadsParam) {
+        setConfig(prev => ({
+          ...prev,
+          ...(capacityParam && { capacity: capacityParam }),
+          ...(regionParam && { region: regionParam }),
+          ...(workloadsParam && { 
+            workloads: { 
+              ...prev.workloads, 
+              ...JSON.parse(workloadsParam) 
+            } 
+          })
+        }));
+      }
+    } catch (error) {
+      console.warn('Failed to parse URL parameters:', error);
+    }
+  }, []);
 
   const steps = [
     {
@@ -62,7 +123,7 @@ const EmbedMultiStepCalculator = ({ darkMode = false }) => {
             Select the capacity tier that matches your team size and data processing needs:
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-96 overflow-y-auto">
-            {Object.entries(fabricPricing.capacity).map(([tier, price]) => (
+            {Object.entries(pricingData.capacity).map(([tier, price]) => (
               <motion.button
                 key={tier}
                 whileHover={{ scale: 1.02 }}
@@ -154,7 +215,7 @@ const EmbedMultiStepCalculator = ({ darkMode = false }) => {
             Select and configure the workloads you need:
           </p>
           <div className="space-y-4 max-h-96 overflow-y-auto">
-            {Object.entries(fabricPricing.workloads).map(([key, pricing]) => {
+            {Object.entries(pricingData.workloads).map(([key, pricing]) => {
               const workload = config.workloads[key] || { enabled: false, usage: 0 };
               return (
                 <div key={key} className={`p-4 rounded-lg border ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>
@@ -248,7 +309,7 @@ const EmbedMultiStepCalculator = ({ darkMode = false }) => {
               .filter(([_, workload]) => workload.enabled && workload.usage > 0)
               .map(([key, workload]) => {
                 const cost = calculateWorkloadCost(key, workload);
-                const pricing = fabricPricing.workloads[key];
+                const pricing = pricingData.workloads[key];
                 return (
                   <div key={key} className={`p-4 rounded-lg ${darkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
                     <div className="flex justify-between items-center">
@@ -302,7 +363,7 @@ const EmbedMultiStepCalculator = ({ darkMode = false }) => {
   ];
 
   const calculateWorkloadCost = (key, workload) => {
-    const pricing = fabricPricing.workloads[key];
+    const pricing = pricingData.workloads[key];
     if (!pricing || !workload.enabled) return 0;
 
     const regionMultiplier = config.region === 'europe' ? 1.1 : config.region === 'asia' ? 1.2 : 1.0;
@@ -311,7 +372,7 @@ const EmbedMultiStepCalculator = ({ darkMode = false }) => {
 
   const getCapacityCost = () => {
     const regionMultiplier = config.region === 'europe' ? 1.1 : config.region === 'asia' ? 1.2 : 1.0;
-    return fabricPricing.capacity[config.capacity] * regionMultiplier;
+    return pricingData.capacity[config.capacity] * regionMultiplier;
   };
 
   const calculateTotalCost = () => {
@@ -395,113 +456,114 @@ const EmbedMultiStepCalculator = ({ darkMode = false }) => {
   };
 
   return (
-    <div className={`w-full h-full flex flex-col ${darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'} rounded-xl shadow-lg`}>
-      {/* Header */}
-      <div className={`p-6 border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
-        <div className="text-center">
-          <h2 className="text-2xl font-bold mb-2">
-            Microsoft Fabric Cost Calculator
-          </h2>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
-            {steps[currentStep].description}
-          </p>
-        </div>
-
-        {/* Progress Bar */}
-        <div className="mt-6">
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-sm font-medium">
-              Step {currentStep + 1} of {steps.length}
-            </span>
-            <span className="text-sm text-gray-500">
-              {Math.round(((currentStep + 1) / steps.length) * 100)}%
-            </span>
+    <div className={`w-full min-h-screen flex items-center justify-center p-4 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
+      <div className={`w-full max-w-4xl ${darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'} rounded-xl shadow-lg`}>
+        {/* Header */}
+        <div className={`p-6 border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+          <div className="text-center">
+            <h2 className="text-2xl font-bold mb-2">
+              Microsoft Fabric Cost Calculator
+            </h2>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              {steps[currentStep].description}
+            </p>
           </div>
-          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: `${((currentStep + 1) / steps.length) * 100}%` }}
-              transition={{ duration: 0.3 }}
-              className="h-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full"
-            />
-          </div>
-        </div>
 
-        {/* Step Indicators */}
-        <div className="flex justify-center mt-4 space-x-2">
-          {steps.map((_, index) => (
-            <div
-              key={index}
-              className={`w-3 h-3 rounded-full transition-colors ${
-                index === currentStep
-                  ? 'bg-blue-600'
-                  : index < currentStep
-                  ? 'bg-green-600'
-                  : darkMode
-                  ? 'bg-gray-600'
-                  : 'bg-gray-300'
-              }`}
-            />
-          ))}
-        </div>
-      </div>
-
-      {/* Content */}
-      <div className="flex-1 p-6" style={{ minHeight: '400px' }}>
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={currentStep}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.3 }}
-            className="h-full"
-          >
-            <div className="flex items-center space-x-3 mb-6">
-              <div className={`p-3 rounded-lg ${darkMode ? 'bg-blue-900/30' : 'bg-blue-100'}`}>
-                <SafeIcon icon={steps[currentStep].icon} className="text-blue-600 text-xl" />
-              </div>
-              <h3 className="text-xl font-semibold">{steps[currentStep].title}</h3>
+          {/* Progress Bar */}
+          <div className="mt-6">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-sm font-medium">
+                Step {currentStep + 1} of {steps.length}
+              </span>
+              <span className="text-sm text-gray-500">
+                {Math.round(((currentStep + 1) / steps.length) * 100)}%
+              </span>
             </div>
-            {steps[currentStep].content}
-          </motion.div>
-        </AnimatePresence>
-      </div>
+            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: `${((currentStep + 1) / steps.length) * 100}%` }}
+                transition={{ duration: 0.3 }}
+                className="h-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full"
+              />
+            </div>
+          </div>
 
-      {/* Navigation */}
-      <div className={`p-6 border-t flex justify-between ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
-        <button
-          onClick={prevStep}
-          disabled={currentStep === 0}
-          className={`flex items-center space-x-2 px-6 py-3 rounded-lg transition-colors ${
-            currentStep === 0
-              ? 'opacity-50 cursor-not-allowed'
-              : darkMode
-              ? 'bg-gray-700 hover:bg-gray-600 text-white'
-              : 'bg-gray-200 hover:bg-gray-300 text-gray-900'
-          }`}
-        >
-          <SafeIcon icon={FiChevronLeft} />
-          <span>Previous</span>
-        </button>
+          {/* Step Indicators */}
+          <div className="flex justify-center mt-4 space-x-2">
+            {steps.map((_, index) => (
+              <div
+                key={index}
+                className={`w-3 h-3 rounded-full transition-colors ${
+                  index === currentStep
+                    ? 'bg-blue-600'
+                    : index < currentStep
+                    ? 'bg-green-600'
+                    : darkMode
+                    ? 'bg-gray-600'
+                    : 'bg-gray-300'
+                }`}
+              />
+            ))}
+          </div>
+        </div>
 
-        {currentStep === steps.length - 1 ? (
+        {/* Content */}
+        <div className="p-6" style={{ minHeight: '400px' }}>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentStep}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              <div className="flex items-center space-x-3 mb-6">
+                <div className={`p-3 rounded-lg ${darkMode ? 'bg-blue-900/30' : 'bg-blue-100'}`}>
+                  <SafeIcon icon={steps[currentStep].icon} className="text-blue-600 text-xl" />
+                </div>
+                <h3 className="text-xl font-semibold">{steps[currentStep].title}</h3>
+              </div>
+              {steps[currentStep].content}
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
+        {/* Navigation */}
+        <div className={`p-6 border-t flex justify-between ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
           <button
-            onClick={() => setCurrentStep(0)}
-            className="flex items-center space-x-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+            onClick={prevStep}
+            disabled={currentStep === 0}
+            className={`flex items-center space-x-2 px-6 py-3 rounded-lg transition-colors ${
+              currentStep === 0
+                ? 'opacity-50 cursor-not-allowed'
+                : darkMode
+                ? 'bg-gray-700 hover:bg-gray-600 text-white'
+                : 'bg-gray-200 hover:bg-gray-300 text-gray-900'
+            }`}
           >
-            <SafeIcon icon={FiCheck} />
-            <span>Start Over</span>
+            <SafeIcon icon={FiChevronLeft} />
+            <span>Previous</span>
           </button>
-        ) : (
-          <button
-            onClick={nextStep}
-            className="flex items-center space-x-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            <span>Next</span>
-            <SafeIcon icon={FiChevronRight} />
-          </button>
-        )}
+
+          {currentStep === steps.length - 1 ? (
+            <button
+              onClick={() => setCurrentStep(0)}
+              className="flex items-center space-x-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+            >
+              <SafeIcon icon={FiCheck} />
+              <span>Start Over</span>
+            </button>
+          ) : (
+            <button
+              onClick={nextStep}
+              className="flex items-center space-x-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              <span>Next</span>
+              <SafeIcon icon={FiChevronRight} />
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

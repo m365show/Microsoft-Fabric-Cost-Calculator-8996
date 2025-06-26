@@ -1,32 +1,82 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import * as FiIcons from 'react-icons/fi';
 import SafeIcon from '../common/SafeIcon';
-import { fabricPricing } from '../data/pricingData';
 
 const { FiDollarSign, FiChevronRight, FiChevronLeft, FiCheck } = FiIcons;
 
+// Fallback pricing data
+const fallbackPricing = {
+  capacity: {
+    F2: 263,
+    F4: 526,
+    F8: 1052,
+    F16: 2104,
+    F32: 4208,
+    F64: 8416,
+    F128: 16832,
+    F256: 33664,
+    F512: 67328
+  },
+  workloads: {
+    dataFactory: {
+      name: 'Data Factory',
+      baseRate: 0.50,
+      unit: 'per pipeline run',
+      description: 'ETL/ELT data integration and transformation pipelines'
+    },
+    synapse: {
+      name: 'Synapse Analytics',
+      baseRate: 2.00,
+      unit: 'per compute hour',
+      description: 'Data warehousing and big data analytics platform'
+    },
+    powerBI: {
+      name: 'Power BI Premium',
+      baseRate: 10.00,
+      unit: 'per user per month',
+      description: 'Advanced business intelligence and reporting capabilities'
+    },
+    dataActivator: {
+      name: 'Data Activator',
+      baseRate: 0.10,
+      unit: 'per 1,000 events',
+      description: 'Real-time data monitoring and automated alerting'
+    },
+    realTimeAnalytics: {
+      name: 'Real-Time Analytics',
+      baseRate: 1.50,
+      unit: 'per processing hour',
+      description: 'Stream processing and real-time data analytics'
+    }
+  }
+};
+
 const EmbedCompactCalculator = ({ darkMode = false }) => {
   const [currentStep, setCurrentStep] = useState(0);
+  const [pricingData, setPricingData] = useState(fallbackPricing);
   const [config, setConfig] = useState({
     capacity: 'F2',
     region: 'us-east',
     workloads: {}
   });
 
-  // Ensure fabricPricing is available
-  if (!fabricPricing || !fabricPricing.capacity || !fabricPricing.workloads) {
-    return (
-      <div className={`max-w-md mx-auto ${
-        darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'
-      } rounded-xl shadow-lg overflow-hidden flex items-center justify-center`} style={{ minHeight: '400px' }}>
-        <div className="text-center">
-          <div className="text-lg font-semibold mb-2">Loading Calculator...</div>
-          <div className="text-gray-500">Please wait...</div>
-        </div>
-      </div>
-    );
-  }
+  // Load pricing data with fallback
+  useEffect(() => {
+    const loadPricingData = async () => {
+      try {
+        const { fabricPricing } = await import('../data/pricingData');
+        if (fabricPricing && fabricPricing.capacity && fabricPricing.workloads) {
+          setPricingData(fabricPricing);
+        }
+      } catch (error) {
+        console.warn('Using fallback pricing data:', error);
+        setPricingData(fallbackPricing);
+      }
+    };
+
+    loadPricingData();
+  }, []);
 
   const steps = [
     {
@@ -38,7 +88,7 @@ const EmbedCompactCalculator = ({ darkMode = false }) => {
             Choose your Microsoft Fabric capacity tier:
           </p>
           <div className="grid grid-cols-2 gap-2 max-h-60 overflow-y-auto">
-            {Object.entries(fabricPricing.capacity).map(([tier, price]) => (
+            {Object.entries(pricingData.capacity).map(([tier, price]) => (
               <motion.button
                 key={tier}
                 whileHover={{ scale: 1.02 }}
@@ -48,8 +98,8 @@ const EmbedCompactCalculator = ({ darkMode = false }) => {
                   config.capacity === tier
                     ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
                     : darkMode
-                      ? 'border-gray-600 hover:border-gray-500'
-                      : 'border-gray-300 hover:border-gray-400'
+                    ? 'border-gray-600 hover:border-gray-500'
+                    : 'border-gray-300 hover:border-gray-400'
                 }`}
               >
                 <div className="font-medium text-sm">{tier}</div>
@@ -84,8 +134,8 @@ const EmbedCompactCalculator = ({ darkMode = false }) => {
                   config.region === region.value
                     ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
                     : darkMode
-                      ? 'border-gray-600 hover:border-gray-500'
-                      : 'border-gray-300 hover:border-gray-400'
+                    ? 'border-gray-600 hover:border-gray-500'
+                    : 'border-gray-300 hover:border-gray-400'
                 }`}
               >
                 <div className="flex justify-between items-center">
@@ -107,26 +157,30 @@ const EmbedCompactCalculator = ({ darkMode = false }) => {
             Enable and configure your workloads:
           </p>
           <div className="space-y-3 max-h-64 overflow-y-auto">
-            {Object.entries(fabricPricing.workloads).map(([key, pricing]) => {
+            {Object.entries(pricingData.workloads).map(([key, pricing]) => {
               const workload = config.workloads[key] || { enabled: false, usage: 0 };
               const displayName = pricing.name;
               return (
                 <div
                   key={key}
-                  className={`p-3 rounded-lg border ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}
+                  className={`p-3 rounded-lg border ${
+                    darkMode ? 'border-gray-600' : 'border-gray-300'
+                  }`}
                 >
                   <div className="flex items-center justify-between mb-2">
                     <label className="flex items-center space-x-2 cursor-pointer">
                       <input
                         type="checkbox"
                         checked={workload.enabled}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          workloads: {
-                            ...config.workloads,
-                            [key]: { ...workload, enabled: e.target.checked }
-                          }
-                        })}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            workloads: {
+                              ...config.workloads,
+                              [key]: { ...workload, enabled: e.target.checked }
+                            }
+                          })
+                        }
                         className="rounded"
                       />
                       <span className="text-sm font-medium">{displayName}</span>
@@ -142,16 +196,20 @@ const EmbedCompactCalculator = ({ darkMode = false }) => {
                         type="number"
                         min="0"
                         value={workload.usage}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          workloads: {
-                            ...config.workloads,
-                            [key]: { ...workload, usage: parseFloat(e.target.value) || 0 }
-                          }
-                        })}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            workloads: {
+                              ...config.workloads,
+                              [key]: { ...workload, usage: parseFloat(e.target.value) || 0 }
+                            }
+                          })
+                        }
                         placeholder={`Enter usage (${pricing.unit})`}
                         className={`w-full p-2 text-sm rounded border ${
-                          darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300'
+                          darkMode
+                            ? 'bg-gray-700 border-gray-600 text-white'
+                            : 'bg-white border-gray-300'
                         }`}
                       />
                       <div className="text-xs text-gray-500 mt-1">
@@ -179,6 +237,7 @@ const EmbedCompactCalculator = ({ darkMode = false }) => {
               Estimated monthly cost
             </div>
           </div>
+
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
               <span>Capacity ({config.capacity})</span>
@@ -188,7 +247,7 @@ const EmbedCompactCalculator = ({ darkMode = false }) => {
               .filter(([_, workload]) => workload.enabled && workload.usage > 0)
               .map(([key, workload]) => {
                 const cost = calculateWorkloadCost(key, workload);
-                const displayName = fabricPricing.workloads[key]?.name || key;
+                const displayName = pricingData.workloads[key]?.name || key;
                 return (
                   <div key={key} className="flex justify-between text-sm">
                     <span>{displayName}</span>
@@ -197,9 +256,8 @@ const EmbedCompactCalculator = ({ darkMode = false }) => {
                 );
               })}
           </div>
-          <div className={`p-3 rounded-lg text-center ${
-            darkMode ? 'bg-green-900/20' : 'bg-green-50'
-          }`}>
+
+          <div className={`p-3 rounded-lg text-center ${darkMode ? 'bg-green-900/20' : 'bg-green-50'}`}>
             <div className="text-sm text-green-700 dark:text-green-300">
               ✅ Your estimate is ready!
             </div>
@@ -210,15 +268,16 @@ const EmbedCompactCalculator = ({ darkMode = false }) => {
   ];
 
   const calculateWorkloadCost = (key, workload) => {
-    const pricing = fabricPricing.workloads[key];
+    const pricing = pricingData.workloads[key];
     if (!pricing || !workload.enabled) return 0;
+
     const regionMultiplier = config.region === 'europe' ? 1.1 : config.region === 'asia' ? 1.2 : 1.0;
     return pricing.baseRate * workload.usage * regionMultiplier;
   };
 
   const getCapacityCost = () => {
     const regionMultiplier = config.region === 'europe' ? 1.1 : config.region === 'asia' ? 1.2 : 1.0;
-    return fabricPricing.capacity[config.capacity] * regionMultiplier;
+    return pricingData.capacity[config.capacity] * regionMultiplier;
   };
 
   const calculateTotalCost = () => {
@@ -241,82 +300,82 @@ const EmbedCompactCalculator = ({ darkMode = false }) => {
   };
 
   return (
-    <div className={`max-w-md mx-auto ${
-      darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'
-    } rounded-xl shadow-lg overflow-hidden`}>
-      {/* Header */}
-      <div className={`p-4 border-b ${darkMode ? 'border-gray-700 bg-gray-900' : 'border-gray-200 bg-gray-50'}`}>
-        <h2 className="text-lg font-semibold text-center">
-          Microsoft Fabric Cost Estimator
-        </h2>
-        <div className="flex justify-center mt-2">
-          <div className="flex space-x-2">
-            {steps.map((_, index) => (
-              <div
-                key={index}
-                className={`w-2 h-2 rounded-full ${
-                  index === currentStep
-                    ? 'bg-blue-600'
-                    : index < currentStep
+    <div className={`w-full min-h-screen flex items-center justify-center p-4 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
+      <div className={`max-w-md mx-auto ${darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'} rounded-xl shadow-lg overflow-hidden`}>
+        {/* Header */}
+        <div className={`p-4 border-b ${darkMode ? 'border-gray-700 bg-gray-900' : 'border-gray-200 bg-gray-50'}`}>
+          <h2 className="text-lg font-semibold text-center">
+            Microsoft Fabric Cost Estimator
+          </h2>
+          <div className="flex justify-center mt-2">
+            <div className="flex space-x-2">
+              {steps.map((_, index) => (
+                <div
+                  key={index}
+                  className={`w-2 h-2 rounded-full ${
+                    index === currentStep
+                      ? 'bg-blue-600'
+                      : index < currentStep
                       ? 'bg-green-600'
                       : darkMode
-                        ? 'bg-gray-600'
-                        : 'bg-gray-300'
-                }`}
-              />
-            ))}
+                      ? 'bg-gray-600'
+                      : 'bg-gray-300'
+                  }`}
+                />
+              ))}
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Content */}
-      <div className="p-4" style={{ minHeight: '300px' }}>
-        <motion.div
-          key={currentStep}
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -20 }}
-          transition={{ duration: 0.3 }}
-        >
-          <h3 className="text-lg font-medium mb-4">{steps[currentStep].title}</h3>
-          {steps[currentStep].content}
-        </motion.div>
-      </div>
+        {/* Content */}
+        <div className="p-4" style={{ minHeight: '300px' }}>
+          <motion.div
+            key={currentStep}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.3 }}
+          >
+            <h3 className="text-lg font-medium mb-4">{steps[currentStep].title}</h3>
+            {steps[currentStep].content}
+          </motion.div>
+        </div>
 
-      {/* Navigation */}
-      <div className={`p-4 border-t flex justify-between ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
-        <button
-          onClick={prevStep}
-          disabled={currentStep === 0}
-          className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
-            currentStep === 0
-              ? 'opacity-50 cursor-not-allowed'
-              : darkMode
+        {/* Navigation */}
+        <div className={`p-4 border-t flex justify-between ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+          <button
+            onClick={prevStep}
+            disabled={currentStep === 0}
+            className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
+              currentStep === 0
+                ? 'opacity-50 cursor-not-allowed'
+                : darkMode
                 ? 'bg-gray-700 hover:bg-gray-600 text-white'
                 : 'bg-gray-200 hover:bg-gray-300 text-gray-900'
-          }`}
-        >
-          <SafeIcon icon={FiChevronLeft} />
-          <span>Back</span>
-        </button>
+            }`}
+          >
+            <SafeIcon icon={FiChevronLeft} />
+            <span>Back</span>
+          </button>
 
-        {currentStep === steps.length - 1 ? (
-          <button
-            onClick={() => setCurrentStep(0)}
-            className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-          >
-            <SafeIcon icon={FiCheck} />
-            <span>Start Over</span>
-          </button>
-        ) : (
-          <button
-            onClick={nextStep}
-            className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            <span>Next</span>
-            <SafeIcon icon={FiChevronRight} />
-          </button>
-        )}
+          {currentStep === steps.length - 1 ? (
+            <button
+              onClick={() => setCurrentStep(0)}
+              className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+            >
+              <SafeIcon icon={FiCheck} />
+              <span>Start Over</span>
+            </button>
+          ) : (
+            <button
+              onClick={nextStep}
+              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              <span>Next</span>
+              <SafeIcon icon={FiChevronRight} />
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
