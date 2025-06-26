@@ -7,7 +7,7 @@ const { FiCode, FiCopy, FiCheck, FiMonitor, FiTablet, FiSmartphone } = FiIcons;
 
 const EmbedCodeGenerator = ({ darkMode }) => {
   const [copied, setCopied] = useState(false);
-  const [embedType, setEmbedType] = useState('multi-step');
+  const [embedType, setEmbedType] = useState('full');
   const [embedSize, setEmbedSize] = useState('large');
 
   // Dynamic URL detection
@@ -19,26 +19,6 @@ const EmbedCodeGenerator = ({ darkMode }) => {
   };
 
   const embedConfigs = {
-    'multi-step': {
-      name: 'Multi-Step Calculator',
-      description: 'Guided step-by-step process (Recommended)',
-      path: '/#/embed/multi-step',
-      sizes: {
-        small: { width: 400, height: 500 },
-        medium: { width: 500, height: 600 },
-        large: { width: 600, height: 700 }
-      }
-    },
-    compact: {
-      name: 'Compact Calculator',
-      description: 'Multi-step wizard format',
-      path: '/#/embed/compact',
-      sizes: {
-        small: { width: 400, height: 500 },
-        medium: { width: 500, height: 600 },
-        large: { width: 600, height: 700 }
-      }
-    },
     widescreen: {
       name: 'Widescreen Calculator',
       description: '16:9 layout with simplified interface',
@@ -66,14 +46,14 @@ const EmbedCodeGenerator = ({ darkMode }) => {
   const embedUrl = `${getBaseUrl()}${currentConfig.path}`;
 
   const generateEmbedCode = () => {
-    return `<iframe src="${embedUrl}" width="${currentSize.width}" height="${currentSize.height}" frameborder="0" allowfullscreen style="border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-width: 100%;">
+    return `<iframe src="${embedUrl}" width="${currentSize.width}" height="${currentSize.height}" frameborder="0" allowfullscreen style="border-radius: 8px;box-shadow: 0 4px 12px rgba(0,0,0,0.1);max-width: 100%;">
 </iframe>`;
   };
 
   const generateResponsiveCode = () => {
     const aspectRatio = (currentSize.height / currentSize.width * 100).toFixed(2);
-    return `<div style="position: relative; width: 100%; height: 0; padding-bottom: ${aspectRatio}%; overflow: hidden;">
-  <iframe src="${embedUrl}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" allowfullscreen>
+    return `<div style="position: relative;width: 100%;height: 0;padding-bottom: ${aspectRatio}%;overflow: hidden;">
+  <iframe src="${embedUrl}" style="position: absolute;top: 0;left: 0;width: 100%;height: 100%;border: none;border-radius: 8px;box-shadow: 0 4px 12px rgba(0,0,0,0.1);" allowfullscreen>
   </iframe>
 </div>`;
   };
@@ -130,8 +110,8 @@ const EmbedCodeGenerator = ({ darkMode }) => {
                 embedType === key
                   ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20'
                   : darkMode
-                    ? 'border-gray-600 hover:border-gray-500'
-                    : 'border-gray-300 hover:border-gray-400'
+                  ? 'border-gray-600 hover:border-gray-500'
+                  : 'border-gray-300 hover:border-gray-400'
               }`}
             >
               <div className="font-medium">{config.name}</div>
@@ -160,8 +140,8 @@ const EmbedCodeGenerator = ({ darkMode }) => {
                   embedSize === sizeKey
                     ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300'
                     : darkMode
-                      ? 'border-gray-600 hover:border-gray-500 text-gray-300'
-                      : 'border-gray-300 hover:border-gray-400 text-gray-700'
+                    ? 'border-gray-600 hover:border-gray-500 text-gray-300'
+                    : 'border-gray-300 hover:border-gray-400 text-gray-700'
                 }`}
               >
                 <SafeIcon icon={IconComponent} />
@@ -189,8 +169,8 @@ const EmbedCodeGenerator = ({ darkMode }) => {
                 copied
                   ? 'bg-green-600 text-white'
                   : darkMode
-                    ? 'bg-gray-700 hover:bg-gray-600 text-gray-300'
-                    : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                  ? 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+                  : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
               }`}
             >
               <SafeIcon icon={copied ? FiCheck : FiCopy} />
@@ -216,8 +196,8 @@ const EmbedCodeGenerator = ({ darkMode }) => {
                 copied
                   ? 'bg-green-600 text-white'
                   : darkMode
-                    ? 'bg-gray-700 hover:bg-gray-600 text-gray-300'
-                    : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                  ? 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+                  : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
               }`}
             >
               <SafeIcon icon={copied ? FiCheck : FiCopy} />
@@ -239,9 +219,8 @@ const EmbedCodeGenerator = ({ darkMode }) => {
         <h4 className="font-medium text-green-600 mb-2">💡 Embedding Tips</h4>
         <ul className="text-sm space-y-1">
           <li>• Use responsive code for mobile-friendly websites</li>
-          <li>• Multi-step format is recommended for best user experience</li>
           <li>• Widescreen format works great in blog posts and articles</li>
-          <li>• Compact format is perfect for sidebars and widgets</li>
+          <li>• Full format includes all calculator features</li>
           <li>• All embeds include dark mode support</li>
           <li>• URLs automatically adapt to your domain</li>
         </ul>
