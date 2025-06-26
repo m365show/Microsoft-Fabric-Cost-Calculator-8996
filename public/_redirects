@@ -1,4 +1,5 @@
 # Netlify redirects for SPA routing
+
 # Handle embed routes specifically
 /embed/multi-step /index.html 200
 /embed/compact /index.html 200

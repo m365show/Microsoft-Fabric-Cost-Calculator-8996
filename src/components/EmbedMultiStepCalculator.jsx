@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import * as FiIcons from 'react-icons/fi';
 import SafeIcon from '../common/SafeIcon';
 
@@ -67,30 +67,11 @@ const EmbedMultiStepCalculator = ({ darkMode = false }) => {
     }
   });
 
-  // Initialize from URL parameters if available
+  // Add debug log
   useEffect(() => {
-    try {
-      const urlParams = new URLSearchParams(window.location.search);
-      const capacityParam = urlParams.get('capacity');
-      const regionParam = urlParams.get('region');
-      const workloadsParam = urlParams.get('workloads');
-
-      if (capacityParam || regionParam || workloadsParam) {
-        setConfig(prev => ({
-          ...prev,
-          ...(capacityParam && { capacity: capacityParam }),
-          ...(regionParam && { region: regionParam }),
-          ...(workloadsParam && { 
-            workloads: { 
-              ...prev.workloads, 
-              ...JSON.parse(workloadsParam) 
-            } 
-          })
-        }));
-      }
-    } catch (error) {
-      console.warn('Failed to parse URL parameters:', error);
-    }
+    console.log('EmbedMultiStepCalculator mounted successfully!');
+    console.log('Current URL:', window.location.href);
+    console.log('Hash:', window.location.hash);
   }, []);
 
   const steps = [
@@ -436,8 +417,6 @@ const EmbedMultiStepCalculator = ({ darkMode = false }) => {
       setCurrentStep(currentStep - 1);
     }
   };
-
-  console.log('EmbedMultiStepCalculator rendering...'); // Debug log
 
   return (
     <div className="w-full min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4">

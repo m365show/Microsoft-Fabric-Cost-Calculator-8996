@@ -24,7 +24,7 @@ function App() {
 
   useEffect(() => {
     // Check if user is visiting for the first time - but not for embed routes
-    const isEmbedRoute = window.location.hash.includes('/embed');
+    const isEmbedRoute = window.location.hash.includes('embed');
     if (!isEmbedRoute) {
       const hasVisited = localStorage.getItem('fabric-calculator-visited');
       if (!hasVisited) {
@@ -48,7 +48,7 @@ function App() {
   };
 
   // Check if current route is an embed route
-  const isEmbedRoute = window.location.hash.includes('/embed');
+  const isEmbedRoute = window.location.hash.includes('embed');
 
   return (
     <div className={`min-h-screen transition-colors duration-300 ${
@@ -56,30 +56,30 @@ function App() {
     }`}>
       <Router>
         <Routes>
-          {/* EMBED ROUTES FIRST - These must be exact matches */}
+          {/* EMBED ROUTES - These handle URLs like /#/embed/multi-step */}
           <Route 
-            path="/embed/multi-step" 
+            path="embed/multi-step" 
             element={<EmbedMultiStepCalculator darkMode={darkMode} />} 
           />
           <Route 
-            path="/embed/compact" 
+            path="embed/compact" 
             element={<EmbedCompactCalculator darkMode={darkMode} />} 
           />
           <Route 
-            path="/embed/widescreen" 
+            path="embed/widescreen" 
             element={<EmbedWidescreenCalculator darkMode={darkMode} />} 
           />
           <Route 
-            path="/embed/full" 
+            path="embed/full" 
             element={<EmbedFullCalculator darkMode={darkMode} />} 
           />
           <Route 
-            path="/embed" 
+            path="embed" 
             element={<EmbedMultiStepCalculator darkMode={darkMode} />} 
           />
 
           {/* MAIN APP ROUTES */}
-          <Route path="/pricing" element={
+          <Route path="pricing" element={
             <>
               <Header darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
               <motion.main
@@ -100,7 +100,7 @@ function App() {
             </>
           } />
           
-          <Route path="/compare" element={
+          <Route path="compare" element={
             <>
               <Header darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
               <motion.main
@@ -121,7 +121,7 @@ function App() {
             </>
           } />
           
-          <Route path="/help" element={
+          <Route path="help" element={
             <>
               <Header darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
               <motion.main
@@ -142,7 +142,7 @@ function App() {
             </>
           } />
           
-          <Route path="/embed-generator" element={
+          <Route path="embed-generator" element={
             <>
               <Header darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
               <motion.main
