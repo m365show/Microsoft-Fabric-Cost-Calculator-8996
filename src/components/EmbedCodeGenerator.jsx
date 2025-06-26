@@ -11,7 +11,7 @@ const EmbedCodeGenerator = ({ darkMode }) => {
   const [embedSize, setEmbedSize] = useState('large');
 
   const baseUrl = window.location.origin;
-
+  
   const embedConfigs = {
     'multi-step': {
       name: 'Multi-Step Calculator',
@@ -60,23 +60,14 @@ const EmbedCodeGenerator = ({ darkMode }) => {
   const embedUrl = `${baseUrl}${currentConfig.path}`;
 
   const generateEmbedCode = () => {
-    return `<iframe 
-  src="${embedUrl}" 
-  width="${currentSize.width}" 
-  height="${currentSize.height}" 
-  frameborder="0" 
-  allowfullscreen 
-  style="border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-width: 100%;">
+    return `<iframe src="${embedUrl}" width="${currentSize.width}" height="${currentSize.height}" frameborder="0" allowfullscreen style="border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-width: 100%;">
 </iframe>`;
   };
 
   const generateResponsiveCode = () => {
     const aspectRatio = (currentSize.height / currentSize.width * 100).toFixed(2);
     return `<div style="position: relative; width: 100%; height: 0; padding-bottom: ${aspectRatio}%; overflow: hidden;">
-  <iframe 
-    src="${embedUrl}" 
-    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" 
-    allowfullscreen>
+  <iframe src="${embedUrl}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" allowfullscreen>
   </iframe>
 </div>`;
   };
@@ -108,9 +99,7 @@ const EmbedCodeGenerator = ({ darkMode }) => {
       }`}
     >
       <div className="flex items-center space-x-3 mb-6">
-        <div className={`p-3 rounded-lg ${
-          darkMode ? 'bg-purple-900/30' : 'bg-purple-100'
-        }`}>
+        <div className={`p-3 rounded-lg ${darkMode ? 'bg-purple-900/30' : 'bg-purple-100'}`}>
           <SafeIcon icon={FiCode} className="text-purple-600 text-xl" />
         </div>
         <div>
@@ -180,10 +169,10 @@ const EmbedCodeGenerator = ({ darkMode }) => {
         </div>
       </div>
 
-      {/* Preview */}
+      {/* Test Link */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-lg font-medium">Preview</h3>
+          <h3 className="text-lg font-medium">Test Embed</h3>
           <a
             href={embedUrl}
             target="_blank"
@@ -198,24 +187,14 @@ const EmbedCodeGenerator = ({ darkMode }) => {
             <span>Open in New Tab</span>
           </a>
         </div>
+        
         <div className={`p-4 rounded-lg border-2 border-dashed ${
           darkMode ? 'border-gray-600 bg-gray-900/50' : 'border-gray-300 bg-gray-50'
         }`}>
-          <div className="mx-auto bg-white rounded shadow-lg" style={{
-            width: Math.min(currentSize.width, 400),
-            height: Math.min(currentSize.height, 300),
-            transform: `scale(${Math.min(400 / currentSize.width, 300 / currentSize.height, 1)})`,
-            transformOrigin: 'top left'
-          }}>
-            <iframe
-              src={embedUrl}
-              width="100%"
-              height="100%"
-              frameBorder="0"
-              style={{ borderRadius: '4px' }}
-              title="Calculator Preview"
-            />
-          </div>
+          <p className="text-sm text-center text-gray-500">
+            Click "Open in New Tab" above to test the embed URL: <br/>
+            <code className="text-xs">{embedUrl}</code>
+          </p>
         </div>
       </div>
 
@@ -288,6 +267,7 @@ const EmbedCodeGenerator = ({ darkMode }) => {
           <li>• Compact format is perfect for sidebars and widgets</li>
           <li>• All embeds include dark mode support</li>
           <li>• Users can interact fully with embedded calculators</li>
+          <li>• URLs include hash (#) for proper routing</li>
         </ul>
       </div>
     </motion.div>
