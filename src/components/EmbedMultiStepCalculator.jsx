@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import * as FiIcons from 'react-icons/fi';
 import SafeIcon from '../common/SafeIcon';
@@ -21,12 +21,27 @@ const EmbedMultiStepCalculator = ({ darkMode = false }) => {
     }
   });
 
+  // Initialize from URL parameters if available
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const capacityParam = urlParams.get('capacity');
+    const regionParam = urlParams.get('region');
+    const workloadsParam = urlParams.get('workloads');
+
+    if (capacityParam || regionParam || workloadsParam) {
+      setConfig(prev => ({
+        ...prev,
+        ...(capacityParam && { capacity: capacityParam }),
+        ...(regionParam && { region: regionParam }),
+        ...(workloadsParam && { workloads: { ...prev.workloads, ...JSON.parse(workloadsParam) } })
+      }));
+    }
+  }, []);
+
   // Ensure fabricPricing is available
   if (!fabricPricing || !fabricPricing.capacity || !fabricPricing.workloads) {
     return (
-      <div className={`w-full h-full flex items-center justify-center ${
-        darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'
-      }`}>
+      <div className={`w-full h-full flex items-center justify-center ${darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'}`}>
         <div className="text-center">
           <div className="text-xl font-semibold mb-2">Loading Calculator...</div>
           <div className="text-gray-500">Please wait while we load the pricing data.</div>
@@ -57,15 +72,15 @@ const EmbedMultiStepCalculator = ({ darkMode = false }) => {
                   config.capacity === tier
                     ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
                     : darkMode
-                      ? 'border-gray-600 hover:border-gray-500'
-                      : 'border-gray-300 hover:border-gray-400'
+                    ? 'border-gray-600 hover:border-gray-500'
+                    : 'border-gray-300 hover:border-gray-400'
                 }`}
               >
                 <div className="flex justify-between items-center">
                   <div>
                     <div className="font-semibold text-lg">{tier}</div>
                     <div className="text-sm text-gray-500">
-                      {tier === 'F2' || tier === 'F4' ? 'Small Teams' : 
+                      {tier === 'F2' || tier === 'F4' ? 'Small Teams' :
                        tier === 'F8' || tier === 'F16' ? 'Medium Teams' : 'Enterprise'}
                     </div>
                   </div>
@@ -106,8 +121,8 @@ const EmbedMultiStepCalculator = ({ darkMode = false }) => {
                   config.region === region.value
                     ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
                     : darkMode
-                      ? 'border-gray-600 hover:border-gray-500'
-                      : 'border-gray-300 hover:border-gray-400'
+                    ? 'border-gray-600 hover:border-gray-500'
+                    : 'border-gray-300 hover:border-gray-400'
                 }`}
               >
                 <div className="flex items-center justify-between">
@@ -185,7 +200,9 @@ const EmbedMultiStepCalculator = ({ darkMode = false }) => {
                         })}
                         placeholder={`Enter usage (${pricing.unit})`}
                         className={`w-full p-3 rounded border ${
-                          darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300'
+                          darkMode
+                            ? 'bg-gray-700 border-gray-600 text-white'
+                            : 'bg-white border-gray-300'
                         }`}
                       />
                       <div className="text-xs text-gray-500 mt-1">
@@ -226,6 +243,7 @@ const EmbedMultiStepCalculator = ({ darkMode = false }) => {
                 </span>
               </div>
             </div>
+
             {Object.entries(config.workloads)
               .filter(([_, workload]) => workload.enabled && workload.usage > 0)
               .map(([key, workload]) => {
@@ -270,9 +288,7 @@ const EmbedMultiStepCalculator = ({ darkMode = false }) => {
               <button
                 onClick={copyEmbedCode}
                 className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors text-sm ${
-                  copied
-                    ? 'bg-green-600 text-white'
-                    : 'bg-purple-600 text-white hover:bg-purple-700'
+                  copied ? 'bg-green-600 text-white' : 'bg-purple-600 text-white hover:bg-purple-700'
                 }`}
               >
                 <SafeIcon icon={copied ? FiCheck : FiCopy} />
@@ -288,6 +304,7 @@ const EmbedMultiStepCalculator = ({ darkMode = false }) => {
   const calculateWorkloadCost = (key, workload) => {
     const pricing = fabricPricing.workloads[key];
     if (!pricing || !workload.enabled) return 0;
+
     const regionMultiplier = config.region === 'europe' ? 1.1 : config.region === 'asia' ? 1.2 : 1.0;
     return pricing.baseRate * workload.usage * regionMultiplier;
   };
@@ -305,8 +322,8 @@ const EmbedMultiStepCalculator = ({ darkMode = false }) => {
   };
 
   const copyEmbedCode = async () => {
-    const embedCode = `<iframe src="${window.location.href}" width="100%" height="700" frameborder="0" style="border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-</iframe>`;
+    const embedCode = `<iframe src="${window.location.href}" width="100%" height="700" frameborder="0" style="border-radius: 8px;box-shadow: 0 4px 12px rgba(0,0,0,0.1);"></iframe>`;
+    
     try {
       await navigator.clipboard.writeText(embedCode);
       setCopied(true);
@@ -378,9 +395,7 @@ const EmbedMultiStepCalculator = ({ darkMode = false }) => {
   };
 
   return (
-    <div className={`w-full h-full flex flex-col ${
-      darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'
-    } rounded-xl shadow-lg`}>
+    <div className={`w-full h-full flex flex-col ${darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'} rounded-xl shadow-lg`}>
       {/* Header */}
       <div className={`p-6 border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
         <div className="text-center">
@@ -421,10 +436,10 @@ const EmbedMultiStepCalculator = ({ darkMode = false }) => {
                 index === currentStep
                   ? 'bg-blue-600'
                   : index < currentStep
-                    ? 'bg-green-600'
-                    : darkMode
-                      ? 'bg-gray-600'
-                      : 'bg-gray-300'
+                  ? 'bg-green-600'
+                  : darkMode
+                  ? 'bg-gray-600'
+                  : 'bg-gray-300'
               }`}
             />
           ))}
@@ -462,8 +477,8 @@ const EmbedMultiStepCalculator = ({ darkMode = false }) => {
             currentStep === 0
               ? 'opacity-50 cursor-not-allowed'
               : darkMode
-                ? 'bg-gray-700 hover:bg-gray-600 text-white'
-                : 'bg-gray-200 hover:bg-gray-300 text-gray-900'
+              ? 'bg-gray-700 hover:bg-gray-600 text-white'
+              : 'bg-gray-200 hover:bg-gray-300 text-gray-900'
           }`}
         >
           <SafeIcon icon={FiChevronLeft} />

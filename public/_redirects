@@ -1,3 +1,10 @@
-# Handle client-side routing
-/embed/*  /index.html   200
-/*        /index.html   200
+# Netlify redirects for SPA routing
+# Handle embed routes specifically
+/embed/multi-step /index.html 200
+/embed/compact /index.html 200
+/embed/widescreen /index.html 200
+/embed/full /index.html 200
+/embed /index.html 200
+
+# Handle all other client-side routes
+/* /index.html 200
