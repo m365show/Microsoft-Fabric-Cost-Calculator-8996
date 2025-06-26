@@ -99,7 +99,7 @@ const Header = ({ darkMode, toggleDarkMode }) => {
               <motion.a
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                href="https://linkedin.com/in/your-profile"
+                href="https://www.linkedin.com/school/m365-show/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors duration-200 ${
