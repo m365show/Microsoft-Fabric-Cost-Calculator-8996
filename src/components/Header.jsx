@@ -17,7 +17,7 @@ const Header = ({ darkMode, toggleDarkMode }) => {
     { path: '/pricing', label: 'Pricing', icon: FiInfo },
     { path: '/compare', label: 'Compare', icon: FiBarChart3 },
     { path: '/help', label: 'Help', icon: FiHelpCircle },
-    { path: '/embed', label: 'Embed', icon: FiCode }
+    { path: '/embed-generator', label: 'Embed', icon: FiCode }
   ];
 
   return (
@@ -27,9 +27,7 @@ const Header = ({ darkMode, toggleDarkMode }) => {
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5 }}
         className={`sticky top-0 z-40 backdrop-blur-lg border-b transition-colors duration-300 ${
-          darkMode 
-            ? 'bg-gray-900/80 border-gray-700' 
-            : 'bg-white/80 border-gray-200'
+          darkMode ? 'bg-gray-900/80 border-gray-700' : 'bg-white/80 border-gray-200'
         }`}
       >
         <div className="container mx-auto px-4 py-4">
@@ -40,9 +38,9 @@ const Header = ({ darkMode, toggleDarkMode }) => {
               className="flex items-center space-x-3"
             >
               <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center overflow-hidden bg-white shadow-md">
-                <img 
-                  src="https://quest-media-storage-bucket.s3.us-east-2.amazonaws.com/1750769009303-httpssubstack-post-media.s3.amaz.jpg" 
-                  alt="Logo" 
+                <img
+                  src="https://quest-media-storage-bucket.s3.us-east-2.amazonaws.com/1750769009303-httpssubstack-post-media.s3.amaz.jpg"
+                  alt="Logo"
                   className="w-8 h-8 md:w-10 md:h-10 object-contain"
                   onError={(e) => {
                     e.target.style.display = 'none';
@@ -151,9 +149,9 @@ const Header = ({ darkMode, toggleDarkMode }) => {
           {/* Mobile Menu */}
           <motion.div
             initial={{ height: 0, opacity: 0 }}
-            animate={{ 
-              height: mobileMenuOpen ? 'auto' : 0, 
-              opacity: mobileMenuOpen ? 1 : 0 
+            animate={{
+              height: mobileMenuOpen ? 'auto' : 0,
+              opacity: mobileMenuOpen ? 1 : 0
             }}
             transition={{ duration: 0.3 }}
             className="md:hidden overflow-hidden"
@@ -198,8 +196,8 @@ const Header = ({ darkMode, toggleDarkMode }) => {
       </motion.header>
 
       {/* Onboarding Modal */}
-      <OnboardingModal 
-        isOpen={showOnboarding} 
+      <OnboardingModal
+        isOpen={showOnboarding}
         onClose={() => setShowOnboarding(false)}
         darkMode={darkMode}
       />

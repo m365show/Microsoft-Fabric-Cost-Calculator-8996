@@ -42,104 +42,100 @@ function App() {
     setDarkMode(!darkMode);
   };
 
-  // Check if this is an embed route
-  const isEmbedRoute = window.location.hash.startsWith('#/embed');
-
-  if (isEmbedRoute) {
-    const embedType = window.location.hash.split('/')[2];
-    
-    // Parse URL parameters for multi-step embed
-    const urlParams = new URLSearchParams(window.location.hash.split('?')[1]);
-    const configFromUrl = urlParams.get('capacity') ? {
-      capacity: urlParams.get('capacity'),
-      region: urlParams.get('region'),
-      workloads: JSON.parse(urlParams.get('workloads') || '{}')
-    } : null;
-
-    return (
-      <div className={`min-h-screen ${
-        darkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'
-      }`}>
-        {embedType === 'compact' && (
-          <div className="p-4">
-            <CompactEstimator darkMode={darkMode} />
-          </div>
-        )}
-        
-        {embedType === 'widescreen' && (
-          <div className="w-full h-screen">
-            <WidescreenCalculator darkMode={darkMode} />
-          </div>
-        )}
-        
-        {embedType === 'multi-step' && (
-          <div className="w-full h-screen p-4">
-            <MultiStepCalculator 
-              darkMode={darkMode} 
-              embedded={true}
-              initialConfig={configFromUrl}
-            />
-          </div>
-        )}
-        
-        {embedType === 'full' && (
-          <div className="p-4">
-            <CostCalculator darkMode={darkMode} />
-          </div>
-        )}
-        
-        {!embedType && (
-          <div className="p-4">
-            <MultiStepCalculator darkMode={darkMode} embedded={true} />
-          </div>
-        )}
-      </div>
-    );
-  }
-
   return (
     <div className={`min-h-screen transition-colors duration-300 ${
       darkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'
     }`}>
       <Router>
-        <Header darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
-        
-        <motion.main
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="container mx-auto px-4 py-6 md:py-8"
-        >
-          <Routes>
-            <Route 
-              path="/" 
-              element={<CostCalculator darkMode={darkMode} />} 
-            />
-            <Route 
-              path="/pricing" 
-              element={<PricingInfo darkMode={darkMode} />} 
-            />
-            <Route 
-              path="/compare" 
-              element={<ComparisonTool darkMode={darkMode} />} 
-            />
-            <Route 
-              path="/help" 
-              element={<HelpPage darkMode={darkMode} />} 
-            />
-            <Route 
-              path="/embed" 
-              element={<EmbedCodeGenerator darkMode={darkMode} />} 
-            />
-          </Routes>
-        </motion.main>
+        <Routes>
+          {/* Embed Routes - No Header */}
+          <Route 
+            path="/embed/multi-step" 
+            element={
+              <div className="w-full h-screen p-4">
+                <MultiStepCalculator darkMode={darkMode} embedded={true} />
+              </div>
+            } 
+          />
+          <Route 
+            path="/embed/compact" 
+            element={
+              <div className="p-4">
+                <CompactEstimator darkMode={darkMode} />
+              </div>
+            } 
+          />
+          <Route 
+            path="/embed/widescreen" 
+            element={
+              <div className="w-full h-screen">
+                <WidescreenCalculator darkMode={darkMode} />
+              </div>
+            } 
+          />
+          <Route 
+            path="/embed/full" 
+            element={
+              <div className="p-4">
+                <CostCalculator darkMode={darkMode} />
+              </div>
+            } 
+          />
+          <Route 
+            path="/embed" 
+            element={
+              <div className="p-4">
+                <MultiStepCalculator darkMode={darkMode} embedded={true} />
+              </div>
+            } 
+          />
 
-        {/* First-time visitor onboarding */}
-        <OnboardingModal
-          isOpen={showOnboarding}
-          onClose={() => setShowOnboarding(false)}
-          darkMode={darkMode}
-        />
+          {/* Main App Routes - With Header */}
+          <Route 
+            path="/*" 
+            element={
+              <>
+                <Header darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
+                <motion.main
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5 }}
+                  className="container mx-auto px-4 py-6 md:py-8"
+                >
+                  <Routes>
+                    <Route 
+                      path="/" 
+                      element={<CostCalculator darkMode={darkMode} />} 
+                    />
+                    <Route 
+                      path="/pricing" 
+                      element={<PricingInfo darkMode={darkMode} />} 
+                    />
+                    <Route 
+                      path="/compare" 
+                      element={<ComparisonTool darkMode={darkMode} />} 
+                    />
+                    <Route 
+                      path="/help" 
+                      element={<HelpPage darkMode={darkMode} />} 
+                    />
+                    <Route 
+                      path="/embed-generator" 
+                      element={<EmbedCodeGenerator darkMode={darkMode} />} 
+                    />
+                  </Routes>
+                </motion.main>
+
+                {/* First-time visitor onboarding */}
+                <OnboardingModal
+                  isOpen={showOnboarding}
+                  onClose={() => setShowOnboarding(false)}
+                  darkMode={darkMode}
+                />
+              </>
+            } 
+          />
+        </Routes>
       </Router>
     </div>
   );

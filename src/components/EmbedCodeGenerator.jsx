@@ -7,16 +7,26 @@ const { FiCode, FiCopy, FiCheck, FiExternalLink, FiMonitor, FiTablet, FiSmartpho
 
 const EmbedCodeGenerator = ({ darkMode }) => {
   const [copied, setCopied] = useState(false);
-  const [embedType, setEmbedType] = useState('compact');
+  const [embedType, setEmbedType] = useState('multi-step');
   const [embedSize, setEmbedSize] = useState('large');
 
-  const baseUrl = 'https://fabric-run.m365calc.com';
+  const baseUrl = window.location.origin;
 
   const embedConfigs = {
+    'multi-step': {
+      name: 'Multi-Step Calculator',
+      description: 'Guided step-by-step process (Recommended)',
+      path: '/#/embed/multi-step',
+      sizes: {
+        small: { width: 400, height: 500 },
+        medium: { width: 500, height: 600 },
+        large: { width: 600, height: 700 }
+      }
+    },
     compact: {
       name: 'Compact Calculator',
       description: 'Multi-step wizard format',
-      path: '/embed/compact',
+      path: '/#/embed/compact',
       sizes: {
         small: { width: 400, height: 500 },
         medium: { width: 500, height: 600 },
@@ -26,7 +36,7 @@ const EmbedCodeGenerator = ({ darkMode }) => {
     widescreen: {
       name: 'Widescreen Calculator',
       description: '16:9 layout with simplified interface',
-      path: '/embed/widescreen',
+      path: '/#/embed/widescreen',
       sizes: {
         small: { width: 640, height: 360 },
         medium: { width: 854, height: 480 },
@@ -36,7 +46,7 @@ const EmbedCodeGenerator = ({ darkMode }) => {
     full: {
       name: 'Full Calculator',
       description: 'Complete calculator with all features',
-      path: '/embed/full',
+      path: '/#/embed/full',
       sizes: {
         small: { width: 800, height: 600 },
         medium: { width: 1000, height: 800 },
@@ -55,7 +65,7 @@ const EmbedCodeGenerator = ({ darkMode }) => {
   width="${currentSize.width}" 
   height="${currentSize.height}" 
   frameborder="0" 
-  allowfullscreen
+  allowfullscreen 
   style="border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-width: 100%;">
 </iframe>`;
   };
@@ -65,7 +75,7 @@ const EmbedCodeGenerator = ({ darkMode }) => {
     return `<div style="position: relative; width: 100%; height: 0; padding-bottom: ${aspectRatio}%; overflow: hidden;">
   <iframe 
     src="${embedUrl}" 
-    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);"
+    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" 
     allowfullscreen>
   </iframe>
 </div>`;
@@ -114,7 +124,7 @@ const EmbedCodeGenerator = ({ darkMode }) => {
       {/* Embed Type Selection */}
       <div className="mb-6">
         <h3 className="text-lg font-medium mb-3">Choose Embed Type</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {Object.entries(embedConfigs).map(([key, config]) => (
             <motion.button
               key={key}
@@ -145,7 +155,6 @@ const EmbedCodeGenerator = ({ darkMode }) => {
           {Object.entries(currentConfig.sizes).map(([sizeKey, size]) => {
             const icons = { small: FiSmartphone, medium: FiTablet, large: FiMonitor };
             const IconComponent = icons[sizeKey];
-            
             return (
               <motion.button
                 key={sizeKey}
@@ -189,19 +198,15 @@ const EmbedCodeGenerator = ({ darkMode }) => {
             <span>Open in New Tab</span>
           </a>
         </div>
-        
         <div className={`p-4 rounded-lg border-2 border-dashed ${
           darkMode ? 'border-gray-600 bg-gray-900/50' : 'border-gray-300 bg-gray-50'
         }`}>
-          <div 
-            className="mx-auto bg-white rounded shadow-lg"
-            style={{ 
-              width: Math.min(currentSize.width, 400), 
-              height: Math.min(currentSize.height, 300),
-              transform: `scale(${Math.min(400 / currentSize.width, 300 / currentSize.height, 1)})`,
-              transformOrigin: 'top left'
-            }}
-          >
+          <div className="mx-auto bg-white rounded shadow-lg" style={{
+            width: Math.min(currentSize.width, 400),
+            height: Math.min(currentSize.height, 300),
+            transform: `scale(${Math.min(400 / currentSize.width, 300 / currentSize.height, 1)})`,
+            transformOrigin: 'top left'
+          }}>
             <iframe
               src={embedUrl}
               width="100%"
@@ -278,6 +283,7 @@ const EmbedCodeGenerator = ({ darkMode }) => {
         <h4 className="font-medium text-blue-600 mb-2">💡 Embedding Tips</h4>
         <ul className="text-sm space-y-1">
           <li>• Use responsive code for mobile-friendly websites</li>
+          <li>• Multi-step format is recommended for best user experience</li>
           <li>• Widescreen format works great in blog posts and articles</li>
           <li>• Compact format is perfect for sidebars and widgets</li>
           <li>• All embeds include dark mode support</li>
