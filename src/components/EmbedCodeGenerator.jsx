@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import * as FiIcons from 'react-icons/fi';
 import SafeIcon from '../common/SafeIcon';
 
-const { FiCode, FiCopy, FiCheck, FiExternalLink, FiMonitor, FiTablet, FiSmartphone } = FiIcons;
+const { FiCode, FiCopy, FiCheck, FiMonitor, FiTablet, FiSmartphone } = FiIcons;
 
 const EmbedCodeGenerator = ({ darkMode }) => {
   const [copied, setCopied] = useState(false);
@@ -22,7 +22,7 @@ const EmbedCodeGenerator = ({ darkMode }) => {
     'multi-step': {
       name: 'Multi-Step Calculator',
       description: 'Guided step-by-step process (Recommended)',
-      path: '/embed/multi-step',
+      path: '/#/embed/multi-step',
       sizes: {
         small: { width: 400, height: 500 },
         medium: { width: 500, height: 600 },
@@ -32,7 +32,7 @@ const EmbedCodeGenerator = ({ darkMode }) => {
     compact: {
       name: 'Compact Calculator',
       description: 'Multi-step wizard format',
-      path: '/embed/compact',
+      path: '/#/embed/compact',
       sizes: {
         small: { width: 400, height: 500 },
         medium: { width: 500, height: 600 },
@@ -42,7 +42,7 @@ const EmbedCodeGenerator = ({ darkMode }) => {
     widescreen: {
       name: 'Widescreen Calculator',
       description: '16:9 layout with simplified interface',
-      path: '/embed/widescreen',
+      path: '/#/embed/widescreen',
       sizes: {
         small: { width: 640, height: 360 },
         medium: { width: 854, height: 480 },
@@ -52,7 +52,7 @@ const EmbedCodeGenerator = ({ darkMode }) => {
     full: {
       name: 'Full Calculator',
       description: 'Complete calculator with all features',
-      path: '/embed/full',
+      path: '/#/embed/full',
       sizes: {
         small: { width: 800, height: 600 },
         medium: { width: 1000, height: 800 },
@@ -232,28 +232,6 @@ const EmbedCodeGenerator = ({ darkMode }) => {
         </div>
       </div>
 
-      {/* Current URLs for Testing */}
-      <div className={`mt-6 p-4 rounded-lg ${
-        darkMode ? 'bg-blue-900/20 border border-blue-700' : 'bg-blue-50 border border-blue-200'
-      }`}>
-        <h4 className="font-medium text-blue-600 mb-2">🔗 Test These URLs</h4>
-        <div className="space-y-2 text-sm">
-          {Object.entries(embedConfigs).map(([key, config]) => (
-            <div key={key} className="flex items-center justify-between">
-              <span className="font-medium">{config.name}:</span>
-              <a 
-                href={`${getBaseUrl()}${config.path}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-600 hover:text-blue-700 underline"
-              >
-                {`${getBaseUrl()}${config.path}`}
-              </a>
-            </div>
-          ))}
-        </div>
-      </div>
-
       {/* Usage Tips */}
       <div className={`mt-6 p-4 rounded-lg ${
         darkMode ? 'bg-green-900/20 border border-green-700' : 'bg-green-50 border border-green-200'
@@ -265,7 +243,7 @@ const EmbedCodeGenerator = ({ darkMode }) => {
           <li>• Widescreen format works great in blog posts and articles</li>
           <li>• Compact format is perfect for sidebars and widgets</li>
           <li>• All embeds include dark mode support</li>
-          <li>• URLs work on both staging and production automatically</li>
+          <li>• URLs automatically adapt to your domain</li>
         </ul>
       </div>
     </motion.div>

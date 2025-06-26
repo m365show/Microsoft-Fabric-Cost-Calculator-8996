@@ -6,9 +6,10 @@ import CostCalculator from './components/CostCalculator';
 import PricingInfo from './components/PricingInfo';
 import ComparisonTool from './components/ComparisonTool';
 import HelpPage from './components/HelpPage';
-import CompactEstimator from './components/CompactEstimator';
-import WidescreenCalculator from './components/WidescreenCalculator';
-import MultiStepCalculator from './components/MultiStepCalculator';
+import EmbedMultiStepCalculator from './components/EmbedMultiStepCalculator';
+import EmbedCompactCalculator from './components/EmbedCompactCalculator';
+import EmbedWidescreenCalculator from './components/EmbedWidescreenCalculator';
+import EmbedFullCalculator from './components/EmbedFullCalculator';
 import OnboardingModal from './components/OnboardingModal';
 import EmbedCodeGenerator from './components/EmbedCodeGenerator';
 import './App.css';
@@ -54,7 +55,7 @@ function App() {
             path="/embed/multi-step" 
             element={
               <div className="w-full h-screen p-4">
-                <MultiStepCalculator darkMode={darkMode} embedded={true} />
+                <EmbedMultiStepCalculator darkMode={darkMode} />
               </div>
             } 
           />
@@ -62,7 +63,7 @@ function App() {
             path="/embed/compact" 
             element={
               <div className="w-full h-screen p-4">
-                <CompactEstimator darkMode={darkMode} />
+                <EmbedCompactCalculator darkMode={darkMode} />
               </div>
             } 
           />
@@ -70,7 +71,7 @@ function App() {
             path="/embed/widescreen" 
             element={
               <div className="w-full h-screen">
-                <WidescreenCalculator darkMode={darkMode} />
+                <EmbedWidescreenCalculator darkMode={darkMode} />
               </div>
             } 
           />
@@ -78,7 +79,7 @@ function App() {
             path="/embed/full" 
             element={
               <div className="w-full min-h-screen p-4">
-                <CostCalculator darkMode={darkMode} />
+                <EmbedFullCalculator darkMode={darkMode} />
               </div>
             } 
           />
@@ -86,7 +87,7 @@ function App() {
             path="/embed" 
             element={
               <div className="w-full h-screen p-4">
-                <MultiStepCalculator darkMode={darkMode} embedded={true} />
+                <EmbedMultiStepCalculator darkMode={darkMode} />
               </div>
             } 
           />
