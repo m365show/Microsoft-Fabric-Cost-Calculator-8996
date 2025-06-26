@@ -4,6 +4,8 @@ import * as FiIcons from 'react-icons/fi';
 import SafeIcon from '../common/SafeIcon';
 import WorkloadCard from './WorkloadCard';
 import CostSummary from './CostSummary';
+import SocialShare from './SocialShare';
+import EmbedCodeGenerator from './EmbedCodeGenerator';
 import { fabricPricing } from '../data/pricingData';
 
 const { FiSettings, FiDollarSign, FiTrendingUp, FiInfo } = FiIcons;
@@ -68,7 +70,7 @@ const CostCalculator = ({ darkMode }) => {
   const calculateTotalCost = () => {
     const regionMultiplier = regionOptions.find(r => r.value === region)?.multiplier || 1.0;
     const capacityCost = fabricPricing.capacity[selectedCapacity] * regionMultiplier;
-    
+
     let workloadCosts = 0;
     Object.entries(workloads).forEach(([key, workload]) => {
       if (workload.enabled && workload.usage > 0) {
@@ -90,7 +92,7 @@ const CostCalculator = ({ darkMode }) => {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 md:space-y-8">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -98,10 +100,10 @@ const CostCalculator = ({ darkMode }) => {
         transition={{ duration: 0.5 }}
         className="text-center"
       >
-        <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+        <h1 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
           Microsoft Fabric Cost Calculator
         </h1>
-        <p className={`text-lg ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+        <p className={`text-base md:text-lg ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
           Estimate your Microsoft Fabric costs across different workloads and capacity tiers
         </p>
       </motion.div>
@@ -111,7 +113,7 @@ const CostCalculator = ({ darkMode }) => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.1 }}
-        className={`rounded-2xl p-6 shadow-lg ${
+        className={`rounded-2xl p-4 md:p-6 shadow-lg ${
           darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
         }`}
       >
@@ -120,7 +122,7 @@ const CostCalculator = ({ darkMode }) => {
           <span>Configuration</span>
         </h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
           {/* Capacity Selection */}
           <div>
             <label className={`block text-sm font-medium mb-2 ${
@@ -133,7 +135,7 @@ const CostCalculator = ({ darkMode }) => {
               onChange={(e) => setSelectedCapacity(e.target.value)}
               className={`w-full p-3 rounded-lg border transition-colors duration-200 ${
                 darkMode 
-                  ? 'bg-gray-700 border-gray-600 text-white focus:border-blue-500'
+                  ? 'bg-gray-700 border-gray-600 text-white focus:border-blue-500' 
                   : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500'
               } focus:outline-none focus:ring-2 focus:ring-blue-500/20`}
             >
@@ -157,7 +159,7 @@ const CostCalculator = ({ darkMode }) => {
               onChange={(e) => setRegion(e.target.value)}
               className={`w-full p-3 rounded-lg border transition-colors duration-200 ${
                 darkMode 
-                  ? 'bg-gray-700 border-gray-600 text-white focus:border-blue-500'
+                  ? 'bg-gray-700 border-gray-600 text-white focus:border-blue-500' 
                   : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500'
               } focus:outline-none focus:ring-2 focus:ring-blue-500/20`}
             >
@@ -172,7 +174,7 @@ const CostCalculator = ({ darkMode }) => {
       </motion.div>
 
       {/* Workload Cards */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
         {Object.entries(workloadInfo).map(([key, info], index) => (
           <motion.div
             key={key}
@@ -205,6 +207,12 @@ const CostCalculator = ({ darkMode }) => {
           darkMode={darkMode}
         />
       </motion.div>
+
+      {/* Social Share */}
+      <SocialShare darkMode={darkMode} />
+
+      {/* Embed Code Generator */}
+      <EmbedCodeGenerator darkMode={darkMode} />
     </div>
   );
 };
